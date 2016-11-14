@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.mitre.discovery.util.WebfingerURLNormalizer;
 import org.mitre.jwt.encryption.service.JWTEncryptionAndDecryptionService;
-import org.mitre.jwt.signer.service.JWTSigningAndValidationService;
 import org.mitre.oauth2.model.PKCEAlgorithm;
 import org.mitre.oauth2.service.SystemScopeService;
 import org.mitre.oauth2.web.IntrospectionEndpoint;
@@ -68,6 +67,7 @@ public class DiscoveryEndpoint {
 	public static final String WELL_KNOWN_URL = ".well-known";
 	public static final String OPENID_CONFIGURATION_URL = WELL_KNOWN_URL + "/openid-configuration";
 	public static final String WEBFINGER_URL = WELL_KNOWN_URL + "/webfinger";
+	public static final String ABOUT_URL = "about";
 
 	/**
 	 * Logger for this class
@@ -79,9 +79,6 @@ public class DiscoveryEndpoint {
 
 	@Autowired
 	private SystemScopeService scopeService;
-
-	@Autowired
-	private JWTSigningAndValidationService signService;
 
 	@Autowired
 	private JWTEncryptionAndDecryptionService encService;
@@ -290,8 +287,6 @@ public class DiscoveryEndpoint {
 			baseUrl = baseUrl.concat("/");
 		}
 
-		Collection<JWSAlgorithm> serverSigningAlgs = signService.getAllSigningAlgsSupported();
-		Collection<JWSAlgorithm> clientSymmetricSigningAlgs = Lists.newArrayList(JWSAlgorithm.HS256, JWSAlgorithm.HS384, JWSAlgorithm.HS512);
 		Collection<JWSAlgorithm> clientSymmetricAndAsymmetricSigningAlgs = Lists.newArrayList(JWSAlgorithm.HS256, JWSAlgorithm.HS384, JWSAlgorithm.HS512, 
 				JWSAlgorithm.RS256, JWSAlgorithm.RS384, JWSAlgorithm.RS512, 
 				JWSAlgorithm.ES256, JWSAlgorithm.ES384, JWSAlgorithm.ES512, 
@@ -301,7 +296,15 @@ public class DiscoveryEndpoint {
 				JWSAlgorithm.ES256, JWSAlgorithm.ES384, JWSAlgorithm.ES512, 
 				JWSAlgorithm.PS256, JWSAlgorithm.PS384, JWSAlgorithm.PS512, 
 				Algorithm.NONE);
-		ArrayList<String> grantTypes = Lists.newArrayList("authorization_code", "implicit", "urn:ietf:params:oauth:grant-type:jwt-bearer", "client_credentials", "urn:ietf:params:oauth:grant_type:redelegate");
+		ArrayList<String> grantTypes = Lists.newArrayList(
+		  "authorization_code",
+		  "implicit",
+		  "refresh_token",
+		  "client_credentials",
+		  "password",
+		  "urn:ietf:params:oauth:grant-type:jwt-bearer",
+		  "urn:ietf:params:oauth:grant_type:redelegate",
+		  "urn:ietf:params:oauth:grant-type:token-exchange");
 
 		Map<String, Object> m = new HashMap<>();
 		m.put("issuer", config.getIssuer());
@@ -352,15 +355,15 @@ public class DiscoveryEndpoint {
 				"phone_number_verified",
 				"address"
 				));
-		m.put("service_documentation", baseUrl + "about");
+		m.put("service_documentation", baseUrl + ABOUT_URL);
 		//claims_locales_supported
 		//ui_locales_supported
 		m.put("claims_parameter_supported", false);
 		m.put("request_parameter_supported", true);
 		m.put("request_uri_parameter_supported", false);
 		m.put("require_request_uri_registration", false);
-		m.put("op_policy_uri", baseUrl + "about");
-		m.put("op_tos_uri", baseUrl + "about");
+		m.put("op_policy_uri", baseUrl + ABOUT_URL);
+		m.put("op_tos_uri", baseUrl + ABOUT_URL);
 
 		m.put("introspection_endpoint", baseUrl + IntrospectionEndpoint.URL); // token introspection endpoint for verifying tokens
 		m.put("revocation_endpoint", baseUrl + RevocationEndpoint.URL); // token revocation endpoint

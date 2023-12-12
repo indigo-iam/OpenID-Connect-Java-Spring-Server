@@ -149,6 +149,7 @@ public class ClientDetailsEntity implements ClientDetails {
 	private Date createdAt; // time the client was created
 	private boolean clearAccessTokensOnRefresh = true; // do we clear access tokens on refresh?
 	private Integer deviceCodeValiditySeconds; // timeout for device codes
+	private Date lastUsed; // last time this client was used
 
 	/** fields for UMA */
 	private Set<String> claimsRedirectUris;
@@ -980,6 +981,22 @@ public class ClientDetailsEntity implements ClientDetails {
 	 */
 	public void setClearAccessTokensOnRefresh(boolean clearAccessTokensOnRefresh) {
 		this.clearAccessTokensOnRefresh = clearAccessTokensOnRefresh;
+	}
+
+	/**
+	 * @return the lastUsed
+	 */
+	@Temporal(TemporalType.DATE)
+	@Column(name = "last_used")
+	public Date getLastUsed() {
+		return lastUsed;
+	}
+
+	/**
+	 * @param lastUsed the date of last use of this client
+	 */
+	public void setLastUsed(Date lastUsed) {
+		this.lastUsed = lastUsed;
 	}
 
 	/**

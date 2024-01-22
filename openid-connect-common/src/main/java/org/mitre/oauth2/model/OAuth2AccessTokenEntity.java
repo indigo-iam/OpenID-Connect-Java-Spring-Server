@@ -21,9 +21,6 @@
 package org.mitre.oauth2.model;
 
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -353,18 +350,8 @@ public class OAuth2AccessTokenEntity implements OAuth2AccessToken {
 
   public void hashMe() {
     if (jwtValue != null) {
-      MessageDigest digest;
-      try {
-        digest = MessageDigest.getInstance("SHA-256");
-        byte[] hash = digest.digest(jwtValue.serialize().getBytes(StandardCharsets.UTF_8));
-        this.tokenValueHash = Base64.getEncoder().encode(hash).toString();
-      } catch (NoSuchAlgorithmException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      this.tokenValueHash = Hashing.sha256()
-        .hashUnencodedChars(jwtValue.serialize())
-        .toString();
+      this.tokenValueHash =
+          Hashing.sha256().hashString(jwtValue.serialize(), StandardCharsets.UTF_8).toString();
     }
   }
 }

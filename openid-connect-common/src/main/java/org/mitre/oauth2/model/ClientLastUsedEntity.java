@@ -15,7 +15,7 @@
  */
 package org.mitre.oauth2.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -29,8 +29,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "IAM_CLIENT_LAST_USED")
-public class ClientLastUsed {
+@Table(name = "client_last_used")
+public class ClientLastUsedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,9 +42,9 @@ public class ClientLastUsed {
 
     @Temporal(TemporalType.DATE)
     @Column(name = "last_used", nullable = false)
-    private Date lastUsed;
+    private LocalDate lastUsed;
 
-    public ClientLastUsed() {
+    public ClientLastUsedEntity() {
         // empty constructor
     }
 
@@ -64,11 +64,11 @@ public class ClientLastUsed {
         this.client = client;
     }
 
-    public Date getLastUsed() {
+    public LocalDate getLastUsed() {
         return lastUsed;
     }
 
-    public void setLastUsed(Date lastUsed) {
+    public void setLastUsed(LocalDate lastUsed) {
         this.lastUsed = lastUsed;
     }
 }

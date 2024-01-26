@@ -151,7 +151,7 @@ public class ClientDetailsEntity implements ClientDetails {
 	private Date createdAt; // time the client was created
 	private boolean clearAccessTokensOnRefresh = true; // do we clear access tokens on refresh?
 	private Integer deviceCodeValiditySeconds; // timeout for device codes
-	private ClientLastUsed clientLastUsed; // last used info
+	private ClientLastUsedEntity clientLastUsed; // last used info
 
 	/** fields for UMA */
 	private Set<String> claimsRedirectUris;
@@ -988,16 +988,16 @@ public class ClientDetailsEntity implements ClientDetails {
 	/**
 	 * @return the clientLastUsed entity
 	 */
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "last_used", referencedColumnName = "id", nullable = false)
-	public ClientLastUsed getClientLastUsed() {
+	public ClientLastUsedEntity getClientLastUsed() {
 		return clientLastUsed;
 	}
 
 	/**
 	 * @param clientLastUsed instance with the date of last use of this client
 	 */
-	public void setClientLastUsed(ClientLastUsed clientLastUsed) {
+	public void setClientLastUsed(ClientLastUsedEntity clientLastUsed) {
 		this.clientLastUsed = clientLastUsed;
 	}
 

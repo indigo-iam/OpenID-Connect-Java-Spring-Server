@@ -180,6 +180,12 @@ CREATE TABLE IF NOT EXISTS client_details (
 	UNIQUE (client_id)
 );
 
+CREATE TABLE IF NOT EXISTS client_last_used (
+  client_details_id BIGINT PRIMARY KEY,
+  last_used TIMESTAMP NOT NULL,
+  CONSTRAINT fk_client_last_used FOREIGN KEY (client_details_id) REFERENCES client_details(id)
+);
+
 CREATE TABLE IF NOT EXISTS client_request_uri (
 	owner_id BIGINT,
 	request_uri VARCHAR(2000)

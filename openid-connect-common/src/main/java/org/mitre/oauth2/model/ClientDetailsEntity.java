@@ -989,7 +989,7 @@ public class ClientDetailsEntity implements ClientDetails {
 	 * @return the clientLastUsed entity
 	 */
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinColumn(name = "last_used", referencedColumnName = "id", nullable = false)
+	@JoinColumn(name = "last_used_id", referencedColumnName = "id", nullable = false)
 	public ClientLastUsedEntity getClientLastUsed() {
 		return clientLastUsed;
 	}

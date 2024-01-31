@@ -25,8 +25,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "client_last_used")
@@ -37,10 +35,9 @@ public class ClientLastUsedEntity {
     private Long id;
 
     @OneToOne(mappedBy = "clientLastUsed", cascade = CascadeType.ALL)
-    //@LazyToOne(LazyToOneOption.NO_PROXY)
+    // @LazyToOne(LazyToOneOption.NO_PROXY)
     private ClientDetailsEntity client;
 
-    @Temporal(TemporalType.DATE)
     @Column(name = "last_used", nullable = false)
     private LocalDate lastUsed;
 

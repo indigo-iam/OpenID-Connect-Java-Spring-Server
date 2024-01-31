@@ -20,9 +20,9 @@ import java.time.LocalDate;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -31,11 +31,12 @@ import javax.persistence.Table;
 public class ClientLastUsedEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "client_details_id")
     private Long id;
 
-    @OneToOne(mappedBy = "clientLastUsed", cascade = CascadeType.ALL)
-    // @LazyToOne(LazyToOneOption.NO_PROXY)
+    @OneToOne(cascade = CascadeType.ALL)
+    @MapsId
+    @JoinColumn(name = "client_details_id")
     private ClientDetailsEntity client;
 
     @Column(name = "last_used", nullable = false)
@@ -43,6 +44,11 @@ public class ClientLastUsedEntity {
 
     public ClientLastUsedEntity() {
         // empty constructor
+    }
+
+    public ClientLastUsedEntity(ClientDetailsEntity client, LocalDate lastUsed) {
+        this.client = client;
+        this.lastUsed = lastUsed;
     }
 
     public Long getId() {

@@ -46,6 +46,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -988,8 +989,8 @@ public class ClientDetailsEntity implements ClientDetails {
 	/**
 	 * @return the clientLastUsed entity
 	 */
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinColumn(name = "last_used_id", referencedColumnName = "id", nullable = false)
+	@OneToOne(mappedBy="client", cascade = CascadeType.ALL)
+	@PrimaryKeyJoinColumn
 	public ClientLastUsedEntity getClientLastUsed() {
 		return clientLastUsed;
 	}

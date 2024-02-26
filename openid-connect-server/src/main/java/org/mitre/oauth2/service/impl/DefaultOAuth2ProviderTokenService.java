@@ -507,45 +507,7 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
    */
   @Override
   public void clearExpiredTokens() {
-    logger.debug("Cleaning out all expired tokens");
-
-    new AbstractPageOperationTemplate<OAuth2AccessTokenEntity>("clearExpiredAccessTokens") {
-      @Override
-      public Collection<OAuth2AccessTokenEntity> fetchPage() {
-        return tokenRepository.getAllExpiredAccessTokens(new DefaultPageCriteria());
-      }
-
-      @Override
-      public void doOperation(OAuth2AccessTokenEntity item) {
-        revokeAccessToken(item);
-      }
-    }.execute();
-
-    new AbstractPageOperationTemplate<OAuth2RefreshTokenEntity>("clearExpiredRefreshTokens") {
-      @Override
-      public Collection<OAuth2RefreshTokenEntity> fetchPage() {
-        return tokenRepository.getAllExpiredRefreshTokens(new DefaultPageCriteria());
-      }
-
-      @Override
-      public void doOperation(OAuth2RefreshTokenEntity item) {
-        revokeRefreshToken(item);
-      }
-    }.execute();
-
-    new AbstractPageOperationTemplate<AuthenticationHolderEntity>(
-        "clearExpiredAuthenticationHolders") {
-      @Override
-      public Collection<AuthenticationHolderEntity> fetchPage() {
-        return authenticationHolderRepository
-          .getOrphanedAuthenticationHolders(new DefaultPageCriteria());
-      }
-
-      @Override
-      public void doOperation(AuthenticationHolderEntity item) {
-        authenticationHolderRepository.remove(item);
-      }
-    }.execute();
+    logger.debug("Cleaning out all expired tokens - Removed from MitreID");
   }
 
   /*

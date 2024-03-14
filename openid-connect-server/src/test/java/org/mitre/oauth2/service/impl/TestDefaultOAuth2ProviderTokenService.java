@@ -143,6 +143,7 @@ public class TestDefaultOAuth2ProviderTokenService {
     when(client.getClientId()).thenReturn(clientId);
     when(clientDetailsService.loadClientByClientId(clientId)).thenReturn(client);
     when(client.isReuseRefreshToken()).thenReturn(true);
+    when(client.isActive()).thenReturn(true);
 
     // by default in tests, allow refresh tokens
     when(client.isAllowRefresh()).thenReturn(true);

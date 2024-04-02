@@ -151,6 +151,7 @@ public class ClientDetailsEntity implements ClientDetails {
 	private Integer deviceCodeValiditySeconds; // timeout for device codes
 	private boolean active = true;
 	private Date statusChangedOn;
+	private String statusChangedBy;
 
 	/** fields for UMA */
 	private Set<String> claimsRedirectUris;
@@ -1014,6 +1015,22 @@ public class ClientDetailsEntity implements ClientDetails {
 	 */
 	public void setStatusChangedOn(Date statusChangedOn) {
 		this.statusChangedOn = statusChangedOn;
+	}
+
+	/**
+	 * @return the status changed by
+	 */
+	@Basic
+	@Column(name = "status_changed_by")
+	public String getStatusChangedBy() {
+		return statusChangedBy;
+	}
+
+	/**
+	 * @param statusChangedBy the status changed on to set
+	 */
+	public void setStatusChangedBy(String statusChangedBy) {
+		this.statusChangedBy = statusChangedBy;
 	}
 
 	/**

@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -42,8 +43,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -149,6 +152,7 @@ public class ClientDetailsEntity implements ClientDetails {
 	private Date createdAt; // time the client was created
 	private boolean clearAccessTokensOnRefresh = true; // do we clear access tokens on refresh?
 	private Integer deviceCodeValiditySeconds; // timeout for device codes
+	private ClientLastUsedEntity clientLastUsed; // last used info
 
 	/** fields for UMA */
 	private Set<String> claimsRedirectUris;
@@ -980,6 +984,22 @@ public class ClientDetailsEntity implements ClientDetails {
 	 */
 	public void setClearAccessTokensOnRefresh(boolean clearAccessTokensOnRefresh) {
 		this.clearAccessTokensOnRefresh = clearAccessTokensOnRefresh;
+	}
+
+	/**
+	 * @return the clientLastUsed entity
+	 */
+	@OneToOne(mappedBy="client", cascade = CascadeType.ALL)
+	@PrimaryKeyJoinColumn
+	public ClientLastUsedEntity getClientLastUsed() {
+		return clientLastUsed;
+	}
+
+	/**
+	 * @param clientLastUsed instance with the date of last use of this client
+	 */
+	public void setClientLastUsed(ClientLastUsedEntity clientLastUsed) {
+		this.clientLastUsed = clientLastUsed;
 	}
 
 	/**

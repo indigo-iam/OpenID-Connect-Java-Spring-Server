@@ -27,14 +27,11 @@ import static org.mitre.openid.connect.request.ConnectRequestParameters.CODE_VER
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.mitre.data.AbstractPageOperationTemplate;
-import org.mitre.data.DefaultPageCriteria;
 import org.mitre.oauth2.model.AuthenticationHolderEntity;
 import org.mitre.oauth2.model.ClientDetailsEntity;
 import org.mitre.oauth2.model.OAuth2AccessTokenEntity;

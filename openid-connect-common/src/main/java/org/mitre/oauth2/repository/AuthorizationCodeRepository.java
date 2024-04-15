@@ -64,5 +64,4 @@ public interface AuthorizationCodeRepository {
 	 */
 	public Collection<AuthorizationCodeEntity> getExpiredCodes(PageCriteria pageCriteria);
 
-	public long deleteExpiredCodes(PageCriteria pageCriteria);
 }

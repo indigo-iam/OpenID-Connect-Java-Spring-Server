@@ -1,6 +1,8 @@
 package org.mitre.oauth2.service.impl;
 
-import org.mitre.data.DefaultPageCriteria;
+import java.util.List;
+
+import org.mitre.data.PageCriteria;
 import org.mitre.oauth2.model.AuthenticationHolderEntity;
 import org.mitre.oauth2.repository.AuthenticationHolderRepository;
 import org.mitre.oauth2.service.AuthenticationHolderEntityService;
@@ -9,7 +11,6 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Service;
 
 @Service("authenticationHolderEntityService")
-@SuppressWarnings("deprecation")
 public class DefaultAuthenticationHolderEntityService implements AuthenticationHolderEntityService {
 
   private final AuthenticationHolderRepository repo;
@@ -33,8 +34,15 @@ public class DefaultAuthenticationHolderEntityService implements AuthenticationH
   }
 
   @Override
-  public long clearOrphaned() {
-    return repo.clearOrphaned(new DefaultPageCriteria(0, 100));
+  public List<AuthenticationHolderEntity> getOrphanedAuthenticationHolders() {
+    
+    return repo.getOrphanedAuthenticationHolders();
+  }
+
+  @Override
+  public List<AuthenticationHolderEntity> getOrphanedAuthenticationHolders(
+      PageCriteria pageCriteria) {
+    return repo.getOrphanedAuthenticationHolders(pageCriteria);
   }
 
 }

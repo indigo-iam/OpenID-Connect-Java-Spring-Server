@@ -41,87 +41,64 @@ import org.springframework.transaction.annotation.Transactional;
  *
  */
 @Repository
-@Transactional(value = "defaultTransactionManager")
+@Transactional(value="defaultTransactionManager")
 public class JpaAuthorizationCodeRepository implements AuthorizationCodeRepository {
 
-  @PersistenceContext(unitName = "defaultPersistenceUnit")
-  EntityManager manager;
+	@PersistenceContext(unitName="defaultPersistenceUnit")
+	EntityManager manager;
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.mitre.oauth2.repository.AuthorizationCodeRepository#save(org.mitre.oauth2.model.
-   * AuthorizationCodeEntity)
-   */
-  @Override
-  @Transactional(value = "defaultTransactionManager")
-  public AuthorizationCodeEntity save(AuthorizationCodeEntity authorizationCode) {
+	/* (non-Javadoc)
+	 * @see org.mitre.oauth2.repository.AuthorizationCodeRepository#save(org.mitre.oauth2.model.AuthorizationCodeEntity)
+	 */
+	@Override
+	@Transactional(value="defaultTransactionManager")
+	public AuthorizationCodeEntity save(AuthorizationCodeEntity authorizationCode) {
 
-    return JpaUtil.saveOrUpdate(authorizationCode.getId(), manager, authorizationCode);
+		return JpaUtil.saveOrUpdate(authorizationCode.getId(), manager, authorizationCode);
 
-  }
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.mitre.oauth2.repository.AuthorizationCodeRepository#getByCode(java.lang.String)
-   */
-  @Override
-  @Transactional(value = "defaultTransactionManager")
-  public AuthorizationCodeEntity getByCode(String code) {
-    TypedQuery<AuthorizationCodeEntity> query = manager
-      .createNamedQuery(AuthorizationCodeEntity.QUERY_BY_VALUE, AuthorizationCodeEntity.class);
-    query.setParameter("code", code);
+	/* (non-Javadoc)
+	 * @see org.mitre.oauth2.repository.AuthorizationCodeRepository#getByCode(java.lang.String)
+	 */
+	@Override
+	@Transactional(value="defaultTransactionManager")
+	public AuthorizationCodeEntity getByCode(String code) {
+		TypedQuery<AuthorizationCodeEntity> query = manager.createNamedQuery(AuthorizationCodeEntity.QUERY_BY_VALUE, AuthorizationCodeEntity.class);
+		query.setParameter("code", code);
 
-    AuthorizationCodeEntity result = JpaUtil.getSingleResult(query.getResultList());
-    return result;
-  }
+		AuthorizationCodeEntity result = JpaUtil.getSingleResult(query.getResultList());
+		return result;
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.mitre.oauth2.repository.AuthorizationCodeRepository#remove(org.mitre.oauth2.model.
-   * AuthorizationCodeEntity)
-   */
-  @Override
-  public void remove(AuthorizationCodeEntity authorizationCodeEntity) {
-    AuthorizationCodeEntity found =
-        manager.find(AuthorizationCodeEntity.class, authorizationCodeEntity.getId());
-    if (found != null) {
-      manager.remove(found);
-    }
-  }
+	/* (non-Javadoc)
+	 * @see org.mitre.oauth2.repository.AuthorizationCodeRepository#remove(org.mitre.oauth2.model.AuthorizationCodeEntity)
+	 */
+	@Override
+	public void remove(AuthorizationCodeEntity authorizationCodeEntity) {
+		AuthorizationCodeEntity found = manager.find(AuthorizationCodeEntity.class, authorizationCodeEntity.getId());
+		if (found != null) {
+			manager.remove(found);
+		}
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.mitre.oauth2.repository.AuthorizationCodeRepository#getExpiredCodes()
-   */
-  @Override
-  public Collection<AuthorizationCodeEntity> getExpiredCodes() {
-    TypedQuery<AuthorizationCodeEntity> query = manager.createNamedQuery(
-        AuthorizationCodeEntity.QUERY_EXPIRATION_BY_DATE, AuthorizationCodeEntity.class);
-    query.setParameter(AuthorizationCodeEntity.PARAM_DATE, new Date());
-    return query.getResultList();
-  }
+	/* (non-Javadoc)
+	 * @see org.mitre.oauth2.repository.AuthorizationCodeRepository#getExpiredCodes()
+	 */
+	@Override
+	public Collection<AuthorizationCodeEntity> getExpiredCodes() {
+		TypedQuery<AuthorizationCodeEntity> query = manager.createNamedQuery(AuthorizationCodeEntity.QUERY_EXPIRATION_BY_DATE, AuthorizationCodeEntity.class);
+		query.setParameter(AuthorizationCodeEntity.PARAM_DATE, new Date()); // this gets anything that's already expired
+		return query.getResultList();
+	}
 
 
-  @Override
-  public Collection<AuthorizationCodeEntity> getExpiredCodes(PageCriteria pageCriteria) {
-    TypedQuery<AuthorizationCodeEntity> query = manager.createNamedQuery(
-        AuthorizationCodeEntity.QUERY_EXPIRATION_BY_DATE, AuthorizationCodeEntity.class);
-    query.setParameter(AuthorizationCodeEntity.PARAM_DATE, new Date());
-    return JpaUtil.getResultPage(query, pageCriteria);
-  }
-
-  @Override
-  public long deleteExpiredCodes(PageCriteria pageCriteria) {
-
-    TypedQuery<AuthorizationCodeEntity> query = manager.createNamedQuery(
-        AuthorizationCodeEntity.QUERY_DELETE_EXPIRED, AuthorizationCodeEntity.class);
-    query.setParameter(AuthorizationCodeEntity.PARAM_DATE, new Date());
-    return JpaUtil.delete(query, pageCriteria);
-  }
+	@Override
+	public Collection<AuthorizationCodeEntity> getExpiredCodes(PageCriteria pageCriteria) {
+		TypedQuery<AuthorizationCodeEntity> query = manager.createNamedQuery(AuthorizationCodeEntity.QUERY_EXPIRATION_BY_DATE, AuthorizationCodeEntity.class);
+		query.setParameter(AuthorizationCodeEntity.PARAM_DATE, new Date()); // this gets anything that's already expired
+		return JpaUtil.getResultPage(query, pageCriteria);
+	}
 
 
 

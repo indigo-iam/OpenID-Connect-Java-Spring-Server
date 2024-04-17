@@ -22,7 +22,7 @@
 	<parent>
 		<artifactId>openid-connect-parent</artifactId>
 		<groupId>org.mitre</groupId>
-		<version>1.3.7.cnaf.20240403</version>
+		<version>1.3.6.cnaf-20240417</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>openid-connect-client</artifactId>

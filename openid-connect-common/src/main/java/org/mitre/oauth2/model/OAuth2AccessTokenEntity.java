@@ -310,7 +310,7 @@ public class OAuth2AccessTokenEntity implements OAuth2AccessToken {
 	/**
 	 * @return the permissions
 	 */
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(
 			name = "access_token_permissions",
 			joinColumns = @JoinColumn(name = "access_token_id"),

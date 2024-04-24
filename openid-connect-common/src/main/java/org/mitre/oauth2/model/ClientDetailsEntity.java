@@ -152,7 +152,7 @@ public class ClientDetailsEntity implements ClientDetails {
 	private Date createdAt; // time the client was created
 	private boolean clearAccessTokensOnRefresh = true; // do we clear access tokens on refresh?
 	private Integer deviceCodeValiditySeconds; // timeout for device codes
-	private ClientLastUsedEntity clientLastUsed; // last used info
+	private transient ClientLastUsedEntity clientLastUsed; // last used info
 	private boolean active = true;
 	private Date statusChangedOn;
 	private String statusChangedBy;

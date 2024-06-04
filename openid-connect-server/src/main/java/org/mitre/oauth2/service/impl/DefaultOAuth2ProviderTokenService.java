@@ -278,7 +278,7 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
   }
 
 
-  private OAuth2RefreshTokenEntity createRefreshToken(ClientDetailsEntity client,
+  public OAuth2RefreshTokenEntity createRefreshToken(ClientDetailsEntity client,
       AuthenticationHolderEntity authHolder) {
     OAuth2RefreshTokenEntity refreshToken = new OAuth2RefreshTokenEntity(); // refreshTokenFactory.createNewRefreshToken();
     JWTClaimsSet.Builder refreshClaims = new JWTClaimsSet.Builder();

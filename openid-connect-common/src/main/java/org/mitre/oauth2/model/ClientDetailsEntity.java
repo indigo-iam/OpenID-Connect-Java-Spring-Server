@@ -96,6 +96,7 @@ public class ClientDetailsEntity implements ClientDetails {
   /** Fields from the OAuth2 Dynamic Registration Specification */
   private String clientId = null; // client_id
   private String clientSecret = null; // client_secret
+  private String clientSecretHash = null;
   private Set<String> redirectUris = new HashSet<>(); // redirect_uris
   private String clientName; // client_name
   private String clientUri; // client_uri
@@ -430,6 +431,22 @@ public class ClientDetailsEntity implements ClientDetails {
    */
   public void setClientSecret(String clientSecret) {
     this.clientSecret = clientSecret;
+  }
+
+  /**
+   * @return the clientSecretHash
+   */
+  @Basic
+  @Column(name = "client_secret_hash", length = 64)
+  public String getClientSecretHash() {
+    return clientSecretHash;
+  }
+
+  /**
+   * @param clientSecretHash the OAuth2 client_secret (optional)
+   */
+  public void setClientSecretHash(String clientSecret) {
+    this.clientSecretHash = clientSecret;
   }
 
   /**
@@ -1137,7 +1154,5 @@ public class ClientDetailsEntity implements ClientDetails {
     ClientDetailsEntity other = (ClientDetailsEntity) obj;
     return Objects.equals(clientId, other.clientId);
   }
-
-
 
 }

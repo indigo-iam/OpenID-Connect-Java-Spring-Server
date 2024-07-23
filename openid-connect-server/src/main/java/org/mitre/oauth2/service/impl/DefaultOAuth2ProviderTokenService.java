@@ -341,6 +341,10 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
       throw new InvalidClientException("Client does not own the presented refresh token");
     }
 
+    if (!client.isActive()) {
+      throw new InvalidClientException("Client is suspended: " + authRequest.getClientId());
+    }
+
     // Make sure this client allows access token refreshing
     if (!client.isAllowRefresh()) {
       throw new InvalidClientException("Client does not allow refreshing access token!");

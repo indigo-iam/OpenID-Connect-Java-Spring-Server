@@ -63,7 +63,7 @@ public class ClientDetailsEntityTest {
 		c.setAccessTokenValiditySeconds(600);
 
 		assertEquals("s6BhdRkqt3", c.getClientId());
-		assertEquals("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", c.getClientSecret());
+		assertEquals(c.hashMe("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk"), c.getClientSecretHash());
 		assertEquals(ClientDetailsEntity.AppType.WEB, c.getApplicationType());
 		assertEquals(ImmutableSet.of("https://client.example.org/callback", "https://client.example.org/callback2"), c.getRedirectUris());
 		assertEquals("My Example", c.getClientName());

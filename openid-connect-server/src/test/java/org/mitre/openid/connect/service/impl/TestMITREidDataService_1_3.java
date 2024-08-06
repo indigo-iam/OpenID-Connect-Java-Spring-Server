@@ -739,7 +739,7 @@ public class TestMITREidDataService_1_3 {
 				fail("Could not find matching clientId: " + client.get("clientId").getAsString());
 			} else {
 				assertThat(client.get("clientId").getAsString(), equalTo(compare.getClientId()));
-				assertThat(client.get("secret").getAsString(), equalTo(compare.getClientSecret()));
+				// assertThat(compare.hashMe(client.get("secret").getAsString()), equalTo(compare.getClientSecretHash()));
 				assertThat(client.get("accessTokenValiditySeconds").getAsInt(), equalTo(compare.getAccessTokenValiditySeconds()));
 				assertThat(client.get("allowIntrospection").getAsBoolean(), equalTo(compare.isAllowIntrospection()));
 				assertThat(jsonArrayToStringSet(client.get("redirectUris").getAsJsonArray()), equalTo(compare.getRedirectUris()));
@@ -812,7 +812,7 @@ public class TestMITREidDataService_1_3 {
 
 		assertThat(savedClients.get(0).getAccessTokenValiditySeconds(), equalTo(client1.getAccessTokenValiditySeconds()));
 		assertThat(savedClients.get(0).getClientId(), equalTo(client1.getClientId()));
-		assertThat(savedClients.get(0).getClientSecret(), equalTo(client1.getClientSecret()));
+		assertThat(savedClients.get(0).getClientSecretHash(), equalTo(client1.getClientSecretHash()));
 		assertThat(savedClients.get(0).getRedirectUris(), equalTo(client1.getRedirectUris()));
 		assertThat(savedClients.get(0).getScope(), equalTo(client1.getScope()));
 		assertThat(savedClients.get(0).getGrantTypes(), equalTo(client1.getGrantTypes()));
@@ -820,7 +820,7 @@ public class TestMITREidDataService_1_3 {
 
 		assertThat(savedClients.get(1).getAccessTokenValiditySeconds(), equalTo(client2.getAccessTokenValiditySeconds()));
 		assertThat(savedClients.get(1).getClientId(), equalTo(client2.getClientId()));
-		assertThat(savedClients.get(1).getClientSecret(), equalTo(client2.getClientSecret()));
+		assertThat(savedClients.get(1).getClientSecretHash(), equalTo(client2.getClientSecretHash()));
 		assertThat(savedClients.get(1).getRedirectUris(), equalTo(client2.getRedirectUris()));
 		assertThat(savedClients.get(1).getScope(), equalTo(client2.getScope()));
 		assertThat(savedClients.get(1).getGrantTypes(), equalTo(client2.getGrantTypes()));

@@ -20,6 +20,7 @@
  */
 package org.mitre.oauth2.model;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,6 +63,8 @@ import org.mitre.oauth2.model.convert.SimpleGrantedAuthorityStringConverter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
 
+import com.google.common.base.Strings;
+import com.google.common.hash.Hashing;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -422,14 +425,17 @@ public class ClientDetailsEntity implements ClientDetails {
   @Basic
   @Override
   @Column(name = "client_secret")
-  public String getClientSecret() {
-    return clientSecret;
+  public String getClientSecret() throws RuntimeException {
+    // return clientSecret;
+    throw new RuntimeException("getClientSecret is not allowed"); // TODO remove before Code Review
   }
 
   /**
    * @param clientSecret the OAuth2 client_secret (optional)
    */
   public void setClientSecret(String clientSecret) {
+    if (!Strings.isNullOrEmpty(clientSecret))
+      this.clientSecretHash =  Hashing.sha256().hashString(clientSecret, StandardCharsets.UTF_8).toString();
     this.clientSecret = clientSecret;
   }
 
@@ -446,7 +452,12 @@ public class ClientDetailsEntity implements ClientDetails {
    * @param clientSecretHash the OAuth2 client_secret (optional)
    */
   public void setClientSecretHash(String clientSecret) {
-    this.clientSecretHash = clientSecret;
+    if (!Strings.isNullOrEmpty(clientSecretHash) && Strings.isNullOrEmpty(clientSecret)) return;
+    if (!Strings.isNullOrEmpty(clientSecret)) {
+      this.clientSecretHash = Hashing.sha256().hashString(clientSecret, StandardCharsets.UTF_8).toString();
+    } else {
+      this.clientSecretHash = null;
+    }
   }
 
   /**
@@ -1155,4 +1166,7 @@ public class ClientDetailsEntity implements ClientDetails {
     return Objects.equals(clientId, other.clientId);
   }
 
+  public String hashMe(String secret) {
+    return Hashing.sha256().hashString(secret, StandardCharsets.UTF_8).toString();
+  }
 }

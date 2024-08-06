@@ -194,10 +194,11 @@ public class RegisteredClient {
 	}
 	/**
 	 * @return
-	 * @see org.mitre.oauth2.model.ClientDetailsEntity#getClientSecret()
+	 * @see org.mitre.oauth2.model.ClientDetailsEntity#getClientSecretHash()
 	 */
 	public String getClientSecret() {
-		return client.getClientSecret();
+		throw new RuntimeException("getClientSecret is not allowed"); // TODO remove before Code Review
+		// return client.getClientSecretHash();
 	}
 	/**
 	 * @param clientSecret
@@ -205,6 +206,20 @@ public class RegisteredClient {
 	 */
 	public void setClientSecret(String clientSecret) {
 		client.setClientSecret(clientSecret);
+	}
+	/**
+	 * @return
+	 * @see org.mitre.oauth2.model.ClientDetailsEntity#getClientSecretHash()
+	 */
+	public String getClientSecretHash() {
+		return client.getClientSecretHash();
+	}
+	/**
+	 * @param clientSecretHash
+	 * @see org.mitre.oauth2.model.ClientDetailsEntity#setClientSecretHash(java.lang.String)
+	 */
+	public void setClientSecretHash(String clientSecret) {
+		client.setClientSecretHash(clientSecret);
 	}
 	/**
 	 * @return

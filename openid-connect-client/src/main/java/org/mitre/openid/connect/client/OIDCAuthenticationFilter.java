@@ -367,7 +367,7 @@ public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFi
 					httpRequest.getHeaders().add("Authorization",
 							String.format("Basic %s", Base64.encode(String.format("%s:%s",
 									UriUtils.encodePathSegment(clientConfig.getClientId(), "UTF-8"),
-									UriUtils.encodePathSegment(clientConfig.getClientSecret(), "UTF-8")))));
+									UriUtils.encodePathSegment(clientConfig.getClientSecretHash(), "UTF-8")))));
 
 					return httpRequest;
 				}
@@ -432,7 +432,7 @@ public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFi
 			} else {
 				//Alternatively use form based auth
 				form.add("client_id", clientConfig.getClientId());
-				form.add("client_secret", clientConfig.getClientSecret());
+				form.add("client_secret", clientConfig.getClientSecretHash());
 			}
 
 		}

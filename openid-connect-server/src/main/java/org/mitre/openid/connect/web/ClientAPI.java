@@ -290,7 +290,7 @@ public class ClientAPI {
 
 			// if they've asked for us to generate a client secret (or they left it blank but require one), do so here
 			if (json.has("generateClientSecret") && json.get("generateClientSecret").getAsBoolean()
-					|| Strings.isNullOrEmpty(client.getClientSecret())) {
+					|| Strings.isNullOrEmpty(client.getClientSecretHash())) {
 				client = clientService.generateClientSecret(client);
 			}
 
@@ -410,7 +410,7 @@ public class ClientAPI {
 
 			// if they've asked for us to generate a client secret (or they left it blank but require one), do so here
 			if (json.has("generateClientSecret") && json.get("generateClientSecret").getAsBoolean()
-					|| Strings.isNullOrEmpty(client.getClientSecret())) {
+					|| Strings.isNullOrEmpty(client.getClientSecretHash())) {
 				client = clientService.generateClientSecret(client);
 			}
 

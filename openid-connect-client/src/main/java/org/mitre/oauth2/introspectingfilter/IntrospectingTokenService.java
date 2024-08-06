@@ -285,7 +285,7 @@ public class IntrospectingTokenService implements ResourceServerTokenServices {
 		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 
 		final String clientId = client.getClientId();
-		final String clientSecret = client.getClientSecret();
+		final String clientSecretHashed = client.getClientSecretHash();
 
 		if (SECRET_BASIC.equals(client.getTokenEndpointAuthMethod())){
 			// use BASIC auth if configured to do so
@@ -295,7 +295,7 @@ public class IntrospectingTokenService implements ResourceServerTokenServices {
 				protected ClientHttpRequest createRequest(URI url, HttpMethod method) throws IOException {
 					ClientHttpRequest httpRequest = super.createRequest(url, method);
 					httpRequest.getHeaders().add("Authorization",
-							String.format("Basic %s", Base64.encode(String.format("%s:%s", clientId, clientSecret)) ));
+							String.format("Basic %s", Base64.encode(String.format("%s:%s", clientId, clientSecretHashed)) ));
 					return httpRequest;
 				}
 			};
@@ -303,7 +303,7 @@ public class IntrospectingTokenService implements ResourceServerTokenServices {
 			restTemplate = new RestTemplate(factory);
 
 			form.add("client_id", clientId);
-			form.add("client_secret", clientSecret);
+			form.add("client_secret_hashed", clientSecretHashed);
 		}
 
 		form.add("token", accessToken);

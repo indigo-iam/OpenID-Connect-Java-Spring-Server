@@ -76,13 +76,13 @@ public class SymmetricKeyJWTValidatorCacheService {
 			return null;
 		}
 
-		if (Strings.isNullOrEmpty(client.getClientSecret())) {
+		if (Strings.isNullOrEmpty(client.getClientSecretHash())) {
 			logger.error("Couldn't create symmetric validator for client " + client.getClientId() + " without a client secret");
 			return null;
 		}
 
 		try {
-			return validators.get(client.getClientSecret());
+			return validators.get(client.getClientSecretHash());
 		} catch (UncheckedExecutionException ue) {
 			logger.error("Problem loading client validator", ue);
 			return null;

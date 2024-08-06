@@ -20,11 +20,13 @@
  */
 package org.mitre.oauth2.model;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.hash.Hashing;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 
@@ -65,7 +67,7 @@ public class RegisteredClientTest {
 		c.setRequestUris(ImmutableSet.of("https://client.example.org/rf.txt#qpXaRLh_n93TTR9F252ValdatUQvQiJi5BDub2BeznA"));
 
 		assertEquals("s6BhdRkqt3", c.getClientId());
-		assertEquals("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", c.getClientSecret());
+		assertEquals(Hashing.sha256().hashString("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", StandardCharsets.UTF_8).toString(), c.getClientSecretHash());
 		assertEquals(new Date(1577858400L * 1000L), c.getClientSecretExpiresAt());
 		assertEquals("this.is.an.access.token.value.ffx83", c.getRegistrationAccessToken());
 		assertEquals("https://server.example.com/connect/register?client_id=s6BhdRkqt3", c.getRegistrationClientUri());
@@ -113,7 +115,7 @@ public class RegisteredClientTest {
 
 		// make sure all the pass-throughs work
 		assertEquals("s6BhdRkqt3", rc.getClientId());
-		assertEquals("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", rc.getClientSecret());
+		assertEquals(Hashing.sha256().hashString("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", StandardCharsets.UTF_8).toString(), rc.getClientSecretHash());
 		assertEquals(new Date(1577858400L * 1000L), rc.getClientSecretExpiresAt());
 		assertEquals("this.is.an.access.token.value.ffx83", rc.getRegistrationAccessToken());
 		assertEquals("https://server.example.com/connect/register?client_id=s6BhdRkqt3", rc.getRegistrationClientUri());
@@ -158,7 +160,7 @@ public class RegisteredClientTest {
 
 		// make sure all the pass-throughs work
 		assertEquals("s6BhdRkqt3", rc.getClientId());
-		assertEquals("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", rc.getClientSecret());
+		assertEquals(Hashing.sha256().hashString("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", StandardCharsets.UTF_8).toString(), rc.getClientSecretHash());
 		assertEquals("this.is.an.access.token.value.ffx83", rc.getRegistrationAccessToken());
 		assertEquals("https://server.example.com/connect/register?client_id=s6BhdRkqt3", rc.getRegistrationClientUri());
 		assertEquals(ClientDetailsEntity.AppType.WEB, rc.getApplicationType());

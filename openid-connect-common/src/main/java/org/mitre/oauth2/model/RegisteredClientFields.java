@@ -56,6 +56,7 @@ public interface RegisteredClientFields {
 	public String CLIENT_NAME = "client_name";
 	public String REDIRECT_URIS = "redirect_uris";
 	public String CLIENT_SECRET = "client_secret";
+	public String CLIENT_SECRET_HASH = "client_secret_hash";
 	public String CLIENT_ID = "client_id";
 	public String CODE_CHALLENGE_METHOD = "code_challenge_method";
 }

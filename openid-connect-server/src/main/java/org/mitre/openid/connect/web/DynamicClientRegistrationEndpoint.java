@@ -331,7 +331,7 @@ public class DynamicClientRegistrationEndpoint {
 				) {
 
 			// a client can't ask to update its own client secret to any particular value
-			newClient.setClientSecret(oldClient.getClientSecret());
+			newClient.setClientSecret(oldClient.getClientSecretHash());
 
 			// we need to copy over all of the local and SECOAUTH fields
 			newClient.setAccessTokenValiditySeconds(oldClient.getAccessTokenValiditySeconds());
@@ -574,7 +574,7 @@ public class DynamicClientRegistrationEndpoint {
 				newClient.getTokenEndpointAuthMethod() == AuthMethod.SECRET_JWT ||
 				newClient.getTokenEndpointAuthMethod() == AuthMethod.SECRET_POST) {
 
-			if (Strings.isNullOrEmpty(newClient.getClientSecret())) {
+			if (Strings.isNullOrEmpty(newClient.getClientSecretHash())) {
 				// no secret yet, we need to generate a secret
 				newClient = clientService.generateClientSecret(newClient);
 			}

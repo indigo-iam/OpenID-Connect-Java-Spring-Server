@@ -440,7 +440,7 @@ public class MITREidDataService_1_3 extends MITREidDataServiceSupport implements
 				writer.name(RESOURCE_IDS);
 				writeNullSafeArray(writer, client.getResourceIds());
 
-				writer.name(SECRET).value(client.getClientSecret());
+				// writer.name(SECRET).value(client.getClientSecretHash());
 
 				writer.name(SCOPE);
 				writeNullSafeArray(writer, client.getScope());

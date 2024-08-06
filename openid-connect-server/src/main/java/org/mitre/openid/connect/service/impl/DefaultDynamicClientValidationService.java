@@ -299,7 +299,7 @@ public class DefaultDynamicClientValidationService implements DynamicClientValid
         || newClient.getTokenEndpointAuthMethod() == AuthMethod.SECRET_JWT
         || newClient.getTokenEndpointAuthMethod() == AuthMethod.SECRET_POST) {
 
-      if (Strings.isNullOrEmpty(newClient.getClientSecret())) {
+      if (Strings.isNullOrEmpty(newClient.getClientSecretHash())) {
         // no secret yet, we need to generate a secret
         newClient = clientService.generateClientSecret(newClient);
       }

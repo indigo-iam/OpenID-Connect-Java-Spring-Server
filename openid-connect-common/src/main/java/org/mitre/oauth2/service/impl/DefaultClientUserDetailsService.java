@@ -63,7 +63,7 @@ public class DefaultClientUserDetailsService implements UserDetailsService {
 
 			if (client != null) {
 
-				String password = Strings.nullToEmpty(client.getClientSecret());
+				String password = Strings.nullToEmpty(client.getClientSecretHash());
 
 				if (config.isHeartMode() || // if we're running HEART mode turn off all client secrets
 						(client.getTokenEndpointAuthMethod() != null &&

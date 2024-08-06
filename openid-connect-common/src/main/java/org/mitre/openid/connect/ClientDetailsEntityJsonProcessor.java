@@ -57,6 +57,7 @@ import static org.mitre.oauth2.model.RegisteredClientFields.CLIENT_ID;
 import static org.mitre.oauth2.model.RegisteredClientFields.CLIENT_ID_ISSUED_AT;
 import static org.mitre.oauth2.model.RegisteredClientFields.CLIENT_NAME;
 import static org.mitre.oauth2.model.RegisteredClientFields.CLIENT_SECRET;
+import static org.mitre.oauth2.model.RegisteredClientFields.CLIENT_SECRET_HASH;
 import static org.mitre.oauth2.model.RegisteredClientFields.CLIENT_SECRET_EXPIRES_AT;
 import static org.mitre.oauth2.model.RegisteredClientFields.CLIENT_URI;
 import static org.mitre.oauth2.model.RegisteredClientFields.CODE_CHALLENGE_METHOD;
@@ -127,6 +128,7 @@ public class ClientDetailsEntityJsonProcessor {
 			// these two fields should only be sent in the update request, and MUST match existing values
 			c.setClientId(getAsString(o, CLIENT_ID));
 			c.setClientSecret(getAsString(o, CLIENT_SECRET));
+			c.setClientSecretHash(getAsString(o, CLIENT_SECRET_HASH));
 
 			// OAuth DynReg
 			c.setRedirectUris(getAsStringSet(o, REDIRECT_URIS));
@@ -279,8 +281,8 @@ public class ClientDetailsEntityJsonProcessor {
 			JsonObject o = new JsonObject();
 
 			o.addProperty(CLIENT_ID, c.getClientId());
-			if (c.getClientSecret() != null) {
-				o.addProperty(CLIENT_SECRET, c.getClientSecret());
+			if (c.getClientSecretHash() != null) {
+				o.addProperty(CLIENT_SECRET_HASH, c.getClientSecretHash());
 
 				if (c.getClientSecretExpiresAt() == null) {
 					o.addProperty(CLIENT_SECRET_EXPIRES_AT, 0); // TODO: do we want to let secrets expire?

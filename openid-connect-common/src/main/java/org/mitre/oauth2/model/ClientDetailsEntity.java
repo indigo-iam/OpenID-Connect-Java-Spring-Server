@@ -426,8 +426,8 @@ public class ClientDetailsEntity implements ClientDetails {
   @Override
   @Column(name = "client_secret")
   public String getClientSecret() throws RuntimeException {
-    // return clientSecret;
-    throw new RuntimeException("getClientSecret is not allowed"); // TODO remove before Code Review
+    return clientSecret;
+    // throw new RuntimeException("getClientSecret is not allowed"); // TODO remove before Code Review
   }
 
   /**

@@ -23,12 +23,14 @@ package org.mitre.oauth2.model;
 import java.util.Date;
 
 import org.junit.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.google.common.collect.ImmutableSet;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author jricher
@@ -63,7 +65,7 @@ public class ClientDetailsEntityTest {
 		c.setAccessTokenValiditySeconds(600);
 
 		assertEquals("s6BhdRkqt3", c.getClientId());
-		assertEquals(c.hashMe("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk"), c.getClientSecretHash());
+		assertTrue(new BCryptPasswordEncoder().matches("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", c.hashMe("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk")));
 		assertEquals(ClientDetailsEntity.AppType.WEB, c.getApplicationType());
 		assertEquals(ImmutableSet.of("https://client.example.org/callback", "https://client.example.org/callback2"), c.getRedirectUris());
 		assertEquals("My Example", c.getClientName());

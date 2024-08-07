@@ -64,12 +64,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
 
 import com.google.common.base.Strings;
-import com.google.common.hash.Hashing;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.JWT;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  * @author jricher
@@ -78,11 +79,9 @@ import com.nimbusds.jwt.JWT;
 @Entity
 @Table(name = "client_details")
 @NamedQueries({
-    @NamedQuery(name = ClientDetailsEntity.QUERY_ALL,
-        query = "SELECT c FROM ClientDetailsEntity c"),
-    @NamedQuery(name = ClientDetailsEntity.QUERY_BY_CLIENT_ID,
-        query = "select c from ClientDetailsEntity c where c.clientId = :"
-            + ClientDetailsEntity.PARAM_CLIENT_ID)})
+    @NamedQuery(name = ClientDetailsEntity.QUERY_ALL, query = "SELECT c FROM ClientDetailsEntity c"),
+    @NamedQuery(name = ClientDetailsEntity.QUERY_BY_CLIENT_ID, query = "select c from ClientDetailsEntity c where c.clientId = :"
+        + ClientDetailsEntity.PARAM_CLIENT_ID) })
 public class ClientDetailsEntity implements ClientDetails {
 
   public static final String QUERY_BY_CLIENT_ID = "ClientDetailsEntity.getByClientId";
@@ -175,7 +174,8 @@ public class ClientDetailsEntity implements ClientDetails {
 
   public enum AuthMethod {
     SECRET_POST("client_secret_post"), SECRET_BASIC("client_secret_basic"), SECRET_JWT(
-        "client_secret_jwt"), PRIVATE_KEY("private_key_jwt"), NONE("none");
+        "client_secret_jwt"),
+    PRIVATE_KEY("private_key_jwt"), NONE("none");
 
     private final String value;
 
@@ -296,7 +296,8 @@ public class ClientDetailsEntity implements ClientDetails {
   }
 
   /**
-   * @param clientDescription Human-readable long description of the client (optional)
+   * @param clientDescription Human-readable long description of the client
+   *                          (optional)
    */
   public void setClientDescription(String clientDescription) {
     this.clientDescription = clientDescription;
@@ -325,7 +326,8 @@ public class ClientDetailsEntity implements ClientDetails {
   }
 
   /**
-   * Number of seconds ID token is valid for. MUST be a positive integer, can not be null.
+   * Number of seconds ID token is valid for. MUST be a positive integer, can not
+   * be null.
    *
    * @return the idTokenValiditySeconds
    */
@@ -357,8 +359,6 @@ public class ClientDetailsEntity implements ClientDetails {
   public void setDynamicallyRegistered(boolean dynamicallyRegistered) {
     this.dynamicallyRegistered = dynamicallyRegistered;
   }
-
-
 
   /**
    * @return the allowIntrospection
@@ -425,9 +425,10 @@ public class ClientDetailsEntity implements ClientDetails {
   @Basic
   @Override
   @Column(name = "client_secret")
-  public String getClientSecret() throws RuntimeException {
+  public String getClientSecret() { // throws RuntimeException {
     return clientSecret;
-    // throw new RuntimeException("getClientSecret is not allowed"); // TODO remove before Code Review
+    // throw new RuntimeException("getClientSecret is not allowed"); // TODO remove
+    // before Code Review
   }
 
   /**
@@ -435,7 +436,7 @@ public class ClientDetailsEntity implements ClientDetails {
    */
   public void setClientSecret(String clientSecret) {
     if (!Strings.isNullOrEmpty(clientSecret))
-      this.clientSecretHash =  Hashing.sha256().hashString(clientSecret, StandardCharsets.UTF_8).toString();
+      this.clientSecretHash = hashMe(clientSecret);
     this.clientSecret = clientSecret;
   }
 
@@ -452,9 +453,10 @@ public class ClientDetailsEntity implements ClientDetails {
    * @param clientSecretHash the OAuth2 client_secret (optional)
    */
   public void setClientSecretHash(String clientSecret) {
-    if (!Strings.isNullOrEmpty(clientSecretHash) && Strings.isNullOrEmpty(clientSecret)) return;
+    if (!Strings.isNullOrEmpty(clientSecretHash) && Strings.isNullOrEmpty(clientSecret))
+      return;
     if (!Strings.isNullOrEmpty(clientSecret)) {
-      this.clientSecretHash = Hashing.sha256().hashString(clientSecret, StandardCharsets.UTF_8).toString();
+      this.clientSecretHash = hashMe(clientSecret);
     } else {
       this.clientSecretHash = null;
     }
@@ -489,7 +491,8 @@ public class ClientDetailsEntity implements ClientDetails {
   }
 
   /**
-   * @param authorizedGrantTypes the OAuth2 grant types that this client is allowed to use
+   * @param authorizedGrantTypes the OAuth2 grant types that this client is
+   *                             allowed to use
    */
   public void setGrantTypes(Set<String> grantTypes) {
     this.grantTypes = grantTypes;
@@ -545,8 +548,9 @@ public class ClientDetailsEntity implements ClientDetails {
   }
 
   /**
-   * @param refreshTokenTimeout Lifetime of refresh tokens, in seconds (optional - leave null for no
-   *        timeout)
+   * @param refreshTokenTimeout Lifetime of refresh tokens, in seconds (optional -
+   *                            leave null for no
+   *                            timeout)
    */
   public void setRefreshTokenValiditySeconds(Integer refreshTokenValiditySeconds) {
     this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
@@ -596,9 +600,9 @@ public class ClientDetailsEntity implements ClientDetails {
     this.resourceIds = resourceIds;
   }
 
-
   /**
-   * This library does not make use of this field, so it is not stored using our persistence layer.
+   * This library does not make use of this field, so it is not stored using our
+   * persistence layer.
    *
    * However, it's somehow required by SECOUATH.
    *
@@ -609,8 +613,6 @@ public class ClientDetailsEntity implements ClientDetails {
   public Map<String, Object> getAdditionalInformation() {
     return this.additionalInformation;
   }
-
-
 
   @Enumerated(EnumType.STRING)
   @Column(name = "application_type")
@@ -914,8 +916,7 @@ public class ClientDetailsEntity implements ClientDetails {
    * @return the postLogoutRedirectUri
    */
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "client_post_logout_redirect_uri",
-      joinColumns = @JoinColumn(name = "owner_id"))
+  @CollectionTable(name = "client_post_logout_redirect_uri", joinColumns = @JoinColumn(name = "owner_id"))
   @Column(name = "post_logout_redirect_uri")
   public Set<String> getPostLogoutRedirectUris() {
     return postLogoutRedirectUris;
@@ -962,7 +963,8 @@ public class ClientDetailsEntity implements ClientDetails {
   }
 
   /**
-   * Our framework doesn't use this construct, we use WhitelistedSites and ApprovedSites instead.
+   * Our framework doesn't use this construct, we use WhitelistedSites and
+   * ApprovedSites instead.
    */
   @Override
   public boolean isAutoApprove(String scope) {
@@ -1053,8 +1055,7 @@ public class ClientDetailsEntity implements ClientDetails {
    * @return the claimsRedirectUris
    */
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "client_claims_redirect_uri",
-      joinColumns = @JoinColumn(name = "owner_id"))
+  @CollectionTable(name = "client_claims_redirect_uri", joinColumns = @JoinColumn(name = "owner_id"))
   @Column(name = "redirect_uri")
   public Set<String> getClaimsRedirectUris() {
     return claimsRedirectUris;
@@ -1167,6 +1168,8 @@ public class ClientDetailsEntity implements ClientDetails {
   }
 
   public String hashMe(String secret) {
-    return Hashing.sha256().hashString(secret, StandardCharsets.UTF_8).toString();
+    return new BCryptPasswordEncoder().encode(secret);
+    // return Hashing.sha256().hashString(secret,
+    // StandardCharsets.UTF_8).toString();
   }
 }

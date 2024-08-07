@@ -29,6 +29,7 @@ import java.sql.Date;
 import org.junit.Test;
 import org.mitre.oauth2.model.ClientDetailsEntity;
 import org.mitre.oauth2.model.RegisteredClient;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.hash.Hashing;
@@ -129,7 +130,7 @@ public class ClientDetailsEntityJsonProcessorTest {
 		RegisteredClient c = ClientDetailsEntityJsonProcessor.parseRegistered(json);
 
 		assertEquals("s6BhdRkqt3", c.getClientId());
-		assertEquals(Hashing.sha256().hashString("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", StandardCharsets.UTF_8).toString(), c.getClientSecretHash());
+		assertTrue(new BCryptPasswordEncoder().matches("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", c.getClientSecretHash()));
 		assertEquals(new Date(1577858400L * 1000L), c.getClientSecretExpiresAt());
 		assertEquals("this.is.an.access.token.value.ffx83", c.getRegistrationAccessToken());
 		assertEquals("https://server.example.com/connect/register?client_id=s6BhdRkqt3", c.getRegistrationClientUri());
@@ -181,7 +182,7 @@ public class ClientDetailsEntityJsonProcessorTest {
 		JsonObject j = ClientDetailsEntityJsonProcessor.serialize(c);
 
 		assertEquals("s6BhdRkqt3", j.get("client_id").getAsString());
-		assertEquals(Hashing.sha256().hashString("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", StandardCharsets.UTF_8).toString(), j.get("client_secret_hash").getAsString());
+		assertTrue(new BCryptPasswordEncoder().matches("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", j.get("client_secret_hash").getAsString()));
 		assertEquals(1577858400L, j.get("client_secret_expires_at").getAsNumber());
 		assertEquals("this.is.an.access.token.value.ffx83", j.get("registration_access_token").getAsString());
 		assertEquals("https://server.example.com/connect/register?client_id=s6BhdRkqt3", j.get("registration_client_uri").getAsString());

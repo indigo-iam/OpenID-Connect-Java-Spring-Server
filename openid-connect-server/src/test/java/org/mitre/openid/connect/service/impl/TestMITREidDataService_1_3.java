@@ -82,6 +82,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 
@@ -812,7 +813,7 @@ public class TestMITREidDataService_1_3 {
 
 		assertThat(savedClients.get(0).getAccessTokenValiditySeconds(), equalTo(client1.getAccessTokenValiditySeconds()));
 		assertThat(savedClients.get(0).getClientId(), equalTo(client1.getClientId()));
-		assertThat(savedClients.get(0).getClientSecretHash(), equalTo(client1.getClientSecretHash()));
+		assertTrue(new BCryptPasswordEncoder().matches("clientsecret1", savedClients.get(0).getClientSecretHash()));
 		assertThat(savedClients.get(0).getRedirectUris(), equalTo(client1.getRedirectUris()));
 		assertThat(savedClients.get(0).getScope(), equalTo(client1.getScope()));
 		assertThat(savedClients.get(0).getGrantTypes(), equalTo(client1.getGrantTypes()));
@@ -820,7 +821,7 @@ public class TestMITREidDataService_1_3 {
 
 		assertThat(savedClients.get(1).getAccessTokenValiditySeconds(), equalTo(client2.getAccessTokenValiditySeconds()));
 		assertThat(savedClients.get(1).getClientId(), equalTo(client2.getClientId()));
-		assertThat(savedClients.get(1).getClientSecretHash(), equalTo(client2.getClientSecretHash()));
+		assertTrue(new BCryptPasswordEncoder().matches("clientsecret2", savedClients.get(1).getClientSecretHash()));
 		assertThat(savedClients.get(1).getRedirectUris(), equalTo(client2.getRedirectUris()));
 		assertThat(savedClients.get(1).getScope(), equalTo(client2.getScope()));
 		assertThat(savedClients.get(1).getGrantTypes(), equalTo(client2.getGrantTypes()));

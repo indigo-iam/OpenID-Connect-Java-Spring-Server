@@ -39,6 +39,7 @@ import org.mitre.oauth2.model.ClientDetailsEntity.SubjectType;
 import org.mitre.oauth2.model.RegisteredClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -128,7 +129,8 @@ public class ClientDetailsEntityJsonProcessor {
 			// these two fields should only be sent in the update request, and MUST match existing values
 			c.setClientId(getAsString(o, CLIENT_ID));
 			c.setClientSecret(getAsString(o, CLIENT_SECRET));
-			c.setClientSecretHash(getAsString(o, CLIENT_SECRET_HASH));
+			if (!Strings.isNullOrEmpty(getAsString(o, CLIENT_SECRET)))
+				c.setClientSecretHash(new BCryptPasswordEncoder().encode(getAsString(o, CLIENT_SECRET)));
 
 			// OAuth DynReg
 			c.setRedirectUris(getAsStringSet(o, REDIRECT_URIS));
@@ -256,7 +258,7 @@ public class ClientDetailsEntityJsonProcessor {
 			rc.setRegistrationClientUri(getAsString(o, REGISTRATION_CLIENT_URI));
 			rc.setClientIdIssuedAt(getAsDate(o, CLIENT_ID_ISSUED_AT));
 			rc.setClientSecretExpiresAt(getAsDate(o, CLIENT_SECRET_EXPIRES_AT));
-
+			rc.setClientSecretHash(new BCryptPasswordEncoder().encode(getAsString(o, CLIENT_SECRET)));
 			rc.setSource(o);
 
 			return rc;

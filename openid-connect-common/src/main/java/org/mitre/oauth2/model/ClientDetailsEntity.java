@@ -436,7 +436,7 @@ public class ClientDetailsEntity implements ClientDetails {
    */
   public void setClientSecret(String clientSecret) {
     if (!Strings.isNullOrEmpty(clientSecret))
-      this.clientSecretHash = hashMe(clientSecret);
+      this.clientSecretHash = new BCryptPasswordEncoder().encode(clientSecret);
     this.clientSecret = clientSecret;
   }
 
@@ -453,13 +453,14 @@ public class ClientDetailsEntity implements ClientDetails {
    * @param clientSecretHash the OAuth2 client_secret (optional)
    */
   public void setClientSecretHash(String clientSecret) {
-    if (!Strings.isNullOrEmpty(clientSecretHash) && Strings.isNullOrEmpty(clientSecret))
-      return;
-    if (!Strings.isNullOrEmpty(clientSecret)) {
-      this.clientSecretHash = hashMe(clientSecret);
-    } else {
-      this.clientSecretHash = null;
-    }
+    this.clientSecretHash = clientSecret;
+    // if (!Strings.isNullOrEmpty(clientSecretHash) && Strings.isNullOrEmpty(clientSecret))
+    //   return;    
+    // if (!Strings.isNullOrEmpty(clientSecret)) {
+    //   this.clientSecretHash = hashMe(clientSecret);
+    // } else {
+    //   this.clientSecretHash = null;
+    // }
   }
 
   /**
@@ -1167,9 +1168,9 @@ public class ClientDetailsEntity implements ClientDetails {
     return Objects.equals(clientId, other.clientId);
   }
 
-  public String hashMe(String secret) {
-    return new BCryptPasswordEncoder().encode(secret);
-    // return Hashing.sha256().hashString(secret,
-    // StandardCharsets.UTF_8).toString();
-  }
+  // public String hashMe(String secret) {
+  //   return new BCryptPasswordEncoder().encode(secret);
+  //   // return Hashing.sha256().hashString(secret,
+  //   // StandardCharsets.UTF_8).toString();
+  // }
 }

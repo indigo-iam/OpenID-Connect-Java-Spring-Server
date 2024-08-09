@@ -50,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.stereotype.Service;
@@ -456,7 +457,7 @@ public class DefaultOAuth2ClientDetailsEntityService implements ClientDetailsEnt
 			logger.error("[HEART mode] Can't generate a client secret, skipping step; client won't be saved due to invalid configuration");
 			client.setClientSecretHash(null);
 		} else {
-			client.setClientSecretHash(Base64.encodeBase64URLSafeString(new BigInteger(512, new SecureRandom()).toByteArray()).replace("=", ""));
+			client.setClientSecretHash(new BCryptPasswordEncoder().encode(Base64.encodeBase64URLSafeString(new BigInteger(512, new SecureRandom()).toByteArray()).replace("=", "")));
 		}
 		return client;
 	}

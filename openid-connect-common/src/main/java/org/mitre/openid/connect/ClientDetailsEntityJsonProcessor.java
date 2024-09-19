@@ -130,7 +130,7 @@ public class ClientDetailsEntityJsonProcessor {
 			c.setClientId(getAsString(o, CLIENT_ID));
 			c.setClientSecret(getAsString(o, CLIENT_SECRET));
 			if (!Strings.isNullOrEmpty(getAsString(o, CLIENT_SECRET)))
-				c.setClientSecretHash(new BCryptPasswordEncoder().encode(getAsString(o, CLIENT_SECRET)));
+				c.setClientSecret(new BCryptPasswordEncoder().encode(getAsString(o, CLIENT_SECRET)));
 
 			// OAuth DynReg
 			c.setRedirectUris(getAsStringSet(o, REDIRECT_URIS));
@@ -258,7 +258,7 @@ public class ClientDetailsEntityJsonProcessor {
 			rc.setRegistrationClientUri(getAsString(o, REGISTRATION_CLIENT_URI));
 			rc.setClientIdIssuedAt(getAsDate(o, CLIENT_ID_ISSUED_AT));
 			rc.setClientSecretExpiresAt(getAsDate(o, CLIENT_SECRET_EXPIRES_AT));
-			rc.setClientSecretHash(new BCryptPasswordEncoder().encode(getAsString(o, CLIENT_SECRET)));
+			rc.setClientSecret(new BCryptPasswordEncoder().encode(getAsString(o, CLIENT_SECRET)));
 			rc.setSource(o);
 
 			return rc;
@@ -283,8 +283,8 @@ public class ClientDetailsEntityJsonProcessor {
 			JsonObject o = new JsonObject();
 
 			o.addProperty(CLIENT_ID, c.getClientId());
-			if (c.getClientSecretHash() != null) {
-				o.addProperty(CLIENT_SECRET_HASH, c.getClientSecretHash());
+			if (c.getClientSecret() != null) {
+				o.addProperty(CLIENT_SECRET_HASH, c.getClientSecret());
 
 				if (c.getClientSecretExpiresAt() == null) {
 					o.addProperty(CLIENT_SECRET_EXPIRES_AT, 0); // TODO: do we want to let secrets expire?

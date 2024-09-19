@@ -48,7 +48,7 @@ public class ClientDetailsEntityTest {
 		ClientDetailsEntity c = new ClientDetailsEntity();
 
 		c.setClientId("s6BhdRkqt3");
-		c.setClientSecret("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk");
+		c.setClientSecret(new BCryptPasswordEncoder().encode("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk"));
 		c.setApplicationType(ClientDetailsEntity.AppType.WEB);
 		c.setRedirectUris(ImmutableSet.of("https://client.example.org/callback", "https://client.example.org/callback2"));
 		c.setClientName("My Example");

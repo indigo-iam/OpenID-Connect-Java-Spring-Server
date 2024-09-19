@@ -444,7 +444,7 @@ public class TestMITREidDataService_1_0 {
 
 		assertThat(savedClients.get(0).getAccessTokenValiditySeconds(), equalTo(client1.getAccessTokenValiditySeconds()));
 		assertThat(savedClients.get(0).getClientId(), equalTo(client1.getClientId()));
-		assertTrue(new BCryptPasswordEncoder().matches("clientsecret1", savedClients.get(0).getClientSecretHash()));
+		assertTrue(new BCryptPasswordEncoder().matches("clientsecret1", savedClients.get(0).getClientSecret()));
 		assertThat(savedClients.get(0).getRedirectUris(), equalTo(client1.getRedirectUris()));
 		assertThat(savedClients.get(0).getScope(), equalTo(client1.getScope()));
 		assertThat(savedClients.get(0).getGrantTypes(), equalTo(client1.getGrantTypes()));
@@ -452,7 +452,7 @@ public class TestMITREidDataService_1_0 {
 
 		assertThat(savedClients.get(1).getAccessTokenValiditySeconds(), equalTo(client2.getAccessTokenValiditySeconds()));
 		assertThat(savedClients.get(1).getClientId(), equalTo(client2.getClientId()));
-		assertTrue(new BCryptPasswordEncoder().matches("clientsecret2", savedClients.get(1).getClientSecretHash()));
+		assertTrue(new BCryptPasswordEncoder().matches("clientsecret2", savedClients.get(1).getClientSecret()));
 		assertThat(savedClients.get(1).getRedirectUris(), equalTo(client2.getRedirectUris()));
 		assertThat(savedClients.get(1).getScope(), equalTo(client2.getScope()));
 		assertThat(savedClients.get(1).getGrantTypes(), equalTo(client2.getGrantTypes()));

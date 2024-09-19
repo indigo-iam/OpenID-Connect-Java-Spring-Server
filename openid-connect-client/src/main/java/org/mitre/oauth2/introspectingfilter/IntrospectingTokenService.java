@@ -285,7 +285,7 @@ public class IntrospectingTokenService implements ResourceServerTokenServices {
 		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 
 		final String clientId = client.getClientId();
-		final String clientSecretHashed = client.getClientSecretHash();
+		final String clientSecretHashed = client.getClientSecret();
 
 		if (SECRET_BASIC.equals(client.getTokenEndpointAuthMethod())){
 			// use BASIC auth if configured to do so

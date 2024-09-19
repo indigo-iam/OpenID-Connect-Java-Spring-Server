@@ -51,7 +51,7 @@ public class RegisteredClientTest {
 		RegisteredClient c = new RegisteredClient();
 
 		c.setClientId("s6BhdRkqt3");
-		c.setClientSecret("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk");
+		c.setClientSecret(new BCryptPasswordEncoder().encode("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk"));
 		c.setClientSecretExpiresAt(new Date(1577858400L * 1000L));
 		c.setRegistrationAccessToken("this.is.an.access.token.value.ffx83");
 		c.setRegistrationClientUri("https://server.example.com/connect/register?client_id=s6BhdRkqt3");
@@ -69,7 +69,7 @@ public class RegisteredClientTest {
 		c.setRequestUris(ImmutableSet.of("https://client.example.org/rf.txt#qpXaRLh_n93TTR9F252ValdatUQvQiJi5BDub2BeznA"));
 
 		assertEquals("s6BhdRkqt3", c.getClientId());
-		assertTrue(new BCryptPasswordEncoder().matches("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", c.getClientSecretHash()));
+		assertTrue(new BCryptPasswordEncoder().matches("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", c.getClientSecret()));
 		assertEquals(new Date(1577858400L * 1000L), c.getClientSecretExpiresAt());
 		assertEquals("this.is.an.access.token.value.ffx83", c.getRegistrationAccessToken());
 		assertEquals("https://server.example.com/connect/register?client_id=s6BhdRkqt3", c.getRegistrationClientUri());
@@ -95,7 +95,7 @@ public class RegisteredClientTest {
 		ClientDetailsEntity c = new ClientDetailsEntity();
 
 		c.setClientId("s6BhdRkqt3");
-		c.setClientSecret("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk");
+		c.setClientSecret(new BCryptPasswordEncoder().encode("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk"));
 		c.setApplicationType(ClientDetailsEntity.AppType.WEB);
 		c.setRedirectUris(ImmutableSet.of("https://client.example.org/callback", "https://client.example.org/callback2"));
 		c.setClientName("My Example");
@@ -117,7 +117,7 @@ public class RegisteredClientTest {
 
 		// make sure all the pass-throughs work
 		assertEquals("s6BhdRkqt3", rc.getClientId());
-		assertTrue(new BCryptPasswordEncoder().matches("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", rc.getClientSecretHash()));
+		assertTrue(new BCryptPasswordEncoder().matches("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", rc.getClientSecret()));
 		assertEquals(new Date(1577858400L * 1000L), rc.getClientSecretExpiresAt());
 		assertEquals("this.is.an.access.token.value.ffx83", rc.getRegistrationAccessToken());
 		assertEquals("https://server.example.com/connect/register?client_id=s6BhdRkqt3", rc.getRegistrationClientUri());
@@ -143,7 +143,7 @@ public class RegisteredClientTest {
 		ClientDetailsEntity c = new ClientDetailsEntity();
 
 		c.setClientId("s6BhdRkqt3");
-		c.setClientSecret("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk");
+		c.setClientSecret(new BCryptPasswordEncoder().encode("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk"));
 		c.setApplicationType(ClientDetailsEntity.AppType.WEB);
 		c.setRedirectUris(ImmutableSet.of("https://client.example.org/callback", "https://client.example.org/callback2"));
 		c.setClientName("My Example");
@@ -162,7 +162,7 @@ public class RegisteredClientTest {
 
 		// make sure all the pass-throughs work
 		assertEquals("s6BhdRkqt3", rc.getClientId());
-		assertTrue(new BCryptPasswordEncoder().matches("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", rc.getClientSecretHash()));
+		assertTrue(new BCryptPasswordEncoder().matches("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", rc.getClientSecret()));
 		assertEquals("this.is.an.access.token.value.ffx83", rc.getRegistrationAccessToken());
 		assertEquals("https://server.example.com/connect/register?client_id=s6BhdRkqt3", rc.getRegistrationClientUri());
 		assertEquals(ClientDetailsEntity.AppType.WEB, rc.getApplicationType());

@@ -543,7 +543,7 @@ public class TestDefaultOAuth2ClientDetailsEntityService {
 
 		client.setRedirectUris(Sets.newHashSet("http://foo.bar/"));
 
-		client.setClientSecretHash(new BCryptPasswordEncoder().encode("secret!"));
+		client.setClientSecret(new BCryptPasswordEncoder().encode("secret!"));
 
 		service.saveNewClient(client);
 
@@ -588,7 +588,7 @@ public class TestDefaultOAuth2ClientDetailsEntityService {
 		service.saveNewClient(client);
 
 		assertThat(client.getClientId(), is(notNullValue(String.class)));
-		assertThat(client.getClientSecretHash(), is(nullValue()));
+		assertThat(client.getClientSecret(s(nullValue()));
 	}
 
 	@Test(expected = IllegalArgumentException.class)

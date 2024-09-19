@@ -280,7 +280,7 @@ public class ProtectedResourceRegistrationEndpoint {
 				) {
 
 			// a client can't ask to update its own client secret to any particular value
-			newClient.setClientSecretHash(oldClient.getClientSecretHash());
+			newClient.setClientSecret(oldClient.getClientSecret());
 
 			newClient.setCreatedAt(oldClient.getCreatedAt());
 
@@ -403,7 +403,7 @@ public class ProtectedResourceRegistrationEndpoint {
 				newClient.getTokenEndpointAuthMethod() == AuthMethod.SECRET_JWT ||
 				newClient.getTokenEndpointAuthMethod() == AuthMethod.SECRET_POST) {
 
-			if (Strings.isNullOrEmpty(newClient.getClientSecretHash())) {
+			if (Strings.isNullOrEmpty(newClient.getClientSecret())) {
 				// no secret yet, we need to generate a secret
 				newClient = clientService.generateClientSecret(newClient);
 			}

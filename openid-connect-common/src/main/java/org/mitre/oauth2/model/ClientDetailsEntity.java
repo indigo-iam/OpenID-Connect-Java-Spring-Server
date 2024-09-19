@@ -424,44 +424,33 @@ public class ClientDetailsEntity implements ClientDetails {
    */
   @Basic
   @Override
-  @Column(name = "client_secret")
-  public String getClientSecret() { // throws RuntimeException {
+  @Column(name = "client_secret", length = 64)
+  public String getClientSecret() {
     return clientSecret;
-    // throw new RuntimeException("getClientSecret is not allowed"); // TODO remove
-    // before Code Review
   }
 
   /**
    * @param clientSecret the OAuth2 client_secret (optional)
    */
   public void setClientSecret(String clientSecret) {
-    if (!Strings.isNullOrEmpty(clientSecret))
-      this.clientSecretHash = new BCryptPasswordEncoder().encode(clientSecret);
     this.clientSecret = clientSecret;
   }
 
-  /**
-   * @return the clientSecretHash
-   */
-  @Basic
-  @Column(name = "client_secret_hash", length = 64)
-  public String getClientSecretHash() {
-    return clientSecretHash;
-  }
+  // /**
+  //  * @return the clientSecretHash
+  //  */
+  // @Basic
+  // @Column(name = "client_secret_hash", length = 64)
+  // public String getClientSecretHash() {
+  //   return clientSecretHash;
+  // }
 
-  /**
-   * @param clientSecretHash the OAuth2 client_secret (optional)
-   */
-  public void setClientSecretHash(String clientSecret) {
-    this.clientSecretHash = clientSecret;
-    // if (!Strings.isNullOrEmpty(clientSecretHash) && Strings.isNullOrEmpty(clientSecret))
-    //   return;    
-    // if (!Strings.isNullOrEmpty(clientSecret)) {
-    //   this.clientSecretHash = hashMe(clientSecret);
-    // } else {
-    //   this.clientSecretHash = null;
-    // }
-  }
+  // /**
+  //  * @param clientSecretHash the OAuth2 client_secret (optional)
+  //  */
+  // public void setClientSecretHash(String clientSecretHash) {
+  //   this.clientSecretHash = clientSecretHash;
+  // }
 
   /**
    * @return the scope
@@ -1167,10 +1156,4 @@ public class ClientDetailsEntity implements ClientDetails {
     ClientDetailsEntity other = (ClientDetailsEntity) obj;
     return Objects.equals(clientId, other.clientId);
   }
-
-  // public String hashMe(String secret) {
-  //   return new BCryptPasswordEncoder().encode(secret);
-  //   // return Hashing.sha256().hashString(secret,
-  //   // StandardCharsets.UTF_8).toString();
-  // }
 }

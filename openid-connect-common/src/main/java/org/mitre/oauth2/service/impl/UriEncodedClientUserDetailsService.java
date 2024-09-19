@@ -66,7 +66,7 @@ public class UriEncodedClientUserDetailsService implements UserDetailsService {
 
 			if (client != null) {
 
-				String encodedPassword = UriUtils.encodePathSegment(Strings.nullToEmpty(client.getClientSecretHash()), "UTF-8");
+				String encodedPassword = UriUtils.encodePathSegment(Strings.nullToEmpty(client.getClientSecret()), "UTF-8");
 
 				if (config.isHeartMode() || // if we're running HEART mode turn off all client secrets
 						(client.getTokenEndpointAuthMethod() != null &&

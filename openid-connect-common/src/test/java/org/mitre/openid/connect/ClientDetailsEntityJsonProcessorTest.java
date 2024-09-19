@@ -130,7 +130,7 @@ public class ClientDetailsEntityJsonProcessorTest {
 		RegisteredClient c = ClientDetailsEntityJsonProcessor.parseRegistered(json);
 
 		assertEquals("s6BhdRkqt3", c.getClientId());
-		assertTrue(new BCryptPasswordEncoder().matches("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", c.getClientSecretHash()));
+		assertTrue(new BCryptPasswordEncoder().matches("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk", c.getClientSecret()));
 		assertEquals(new Date(1577858400L * 1000L), c.getClientSecretExpiresAt());
 		assertEquals("this.is.an.access.token.value.ffx83", c.getRegistrationAccessToken());
 		assertEquals("https://server.example.com/connect/register?client_id=s6BhdRkqt3", c.getRegistrationClientUri());
@@ -159,8 +159,8 @@ public class ClientDetailsEntityJsonProcessorTest {
 		RegisteredClient c = new RegisteredClient();
 
 		c.setClientId("s6BhdRkqt3");
-		// c.setClientSecret("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk");
-		c.setClientSecretHash(new BCryptPasswordEncoder().encode("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk"));
+		// c.setClientSecret(new BCryptPasswordEncoder().encode("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk"));
+		c.setClientSecret(new BCryptPasswordEncoder().encode("ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk"));
 		c.setClientSecretExpiresAt(new Date(1577858400L * 1000L));
 		c.setRegistrationAccessToken("this.is.an.access.token.value.ffx83");
 		c.setRegistrationClientUri("https://server.example.com/connect/register?client_id=s6BhdRkqt3");

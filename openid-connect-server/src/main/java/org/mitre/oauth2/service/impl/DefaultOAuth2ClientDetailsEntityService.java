@@ -281,7 +281,7 @@ public class DefaultOAuth2ClientDetailsEntityService implements ClientDetailsEnt
 			}
 
 			// make sure we don't have a client secret
-			if (!Strings.isNullOrEmpty(client.getClientSecretHash())) {
+			if (!Strings.isNullOrEmpty(client.getClientSecret())) {
 				throw new IllegalArgumentException("[HEART mode] Client secrets are not allowed");
 			}
 
@@ -455,9 +455,9 @@ public class DefaultOAuth2ClientDetailsEntityService implements ClientDetailsEnt
 	public ClientDetailsEntity generateClientSecret(ClientDetailsEntity client) {
 		if (config.isHeartMode()) {
 			logger.error("[HEART mode] Can't generate a client secret, skipping step; client won't be saved due to invalid configuration");
-			client.setClientSecretHash(null);
+			client.setClientSecret(null);
 		} else {
-			client.setClientSecretHash(new BCryptPasswordEncoder().encode(Base64.encodeBase64URLSafeString(new BigInteger(512, new SecureRandom()).toByteArray()).replace("=", "")));
+			client.setClientSecret(new BCryptPasswordEncoder().encode(Base64.encodeBase64URLSafeString(new BigInteger(512, new SecureRandom()).toByteArray()).replace("=", "")));
 		}
 		return client;
 	}

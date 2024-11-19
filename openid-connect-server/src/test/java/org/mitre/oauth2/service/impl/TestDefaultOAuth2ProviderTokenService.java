@@ -39,7 +39,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -310,7 +312,9 @@ public class TestDefaultOAuth2ProviderTokenService {
    */
   @Test
   public void createAccessToken_yesRefresh() {
-    OAuth2Request clientAuth = new OAuth2Request(null, clientId, null, true,
+    Map<String, String> requestParameters = new HashMap<String, String>();
+    requestParameters.put("grant_type", "authorization_code");
+    OAuth2Request clientAuth = new OAuth2Request(requestParameters, clientId, null, true,
         newHashSet(SystemScopeService.OFFLINE_ACCESS), null, null, null, null);
     when(authentication.getOAuth2Request()).thenReturn(clientAuth);
     when(client.isAllowRefresh()).thenReturn(true);
@@ -338,6 +342,11 @@ public class TestDefaultOAuth2ProviderTokenService {
     when(client.getRefreshTokenValiditySeconds()).thenReturn(refreshTokenValiditySeconds);
 
     long start = System.currentTimeMillis();
+    Map<String, String> requestParameters = new HashMap<String, String>();
+    requestParameters.put("grant_type", "authorization_code");
+    OAuth2Request clientAuth =
+        new OAuth2Request(requestParameters, clientId, null, true, scope, null, null, null, null);
+    when(authentication.getOAuth2Request()).thenReturn(clientAuth);
     OAuth2AccessTokenEntity token = service.createAccessToken(authentication);
     long end = System.currentTimeMillis();
 
@@ -357,6 +366,11 @@ public class TestDefaultOAuth2ProviderTokenService {
 
   @Test
   public void createAccessToken_checkClient() {
+    Map<String, String> requestParameters = new HashMap<String, String>();
+    requestParameters.put("grant_type", "authorization_code");
+    OAuth2Request clientAuth =
+        new OAuth2Request(requestParameters, clientId, null, true, scope, null, null, null, null);
+    when(authentication.getOAuth2Request()).thenReturn(clientAuth);
     OAuth2AccessTokenEntity token = service.createAccessToken(authentication);
 
     verify(scopeService, atLeastOnce()).removeReservedScopes(anySetOf(SystemScope.class));
@@ -366,6 +380,11 @@ public class TestDefaultOAuth2ProviderTokenService {
 
   @Test
   public void createAccessToken_checkScopes() {
+    Map<String, String> requestParameters = new HashMap<String, String>();
+    requestParameters.put("grant_type", "authorization_code");
+    OAuth2Request clientAuth =
+        new OAuth2Request(requestParameters, clientId, null, true, scope, null, null, null, null);
+    when(authentication.getOAuth2Request()).thenReturn(clientAuth);
     OAuth2AccessTokenEntity token = service.createAccessToken(authentication);
 
     verify(scopeService, atLeastOnce()).removeReservedScopes(anySetOf(SystemScope.class));
@@ -381,6 +400,11 @@ public class TestDefaultOAuth2ProviderTokenService {
     when(authenticationHolderRepository.save(any(AuthenticationHolderEntity.class)))
       .thenReturn(authHolder);
 
+    Map<String, String> requestParameters = new HashMap<String, String>();
+    requestParameters.put("grant_type", "authorization_code");
+    OAuth2Request clientAuth =
+        new OAuth2Request(requestParameters, clientId, null, true, scope, null, null, null, null);
+    when(authentication.getOAuth2Request()).thenReturn(clientAuth);
     OAuth2AccessTokenEntity token = service.createAccessToken(authentication);
 
     assertThat(token.getAuthenticationHolder().getAuthentication(), equalTo(authentication));

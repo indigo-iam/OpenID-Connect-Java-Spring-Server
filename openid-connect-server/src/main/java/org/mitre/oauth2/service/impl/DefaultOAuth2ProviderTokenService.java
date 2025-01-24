@@ -241,15 +241,6 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
 
       token.setAuthenticationHolder(authHolder);
 
-      // attach a refresh token, if this client is allowed to request them, the user gets the
-      // offline scope and grant type differs from client credentials
-      if (client.isAllowRefresh() && token.getScope().contains(SystemScopeService.OFFLINE_ACCESS)
-          && !request.getGrantType().equals("client_credentials")) {
-        OAuth2RefreshTokenEntity savedRefreshToken = createRefreshToken(client, authHolder);
-
-        token.setRefreshToken(savedRefreshToken);
-      }
-
       // Add approved site reference, if any
       OAuth2Request originalAuthRequest = authHolder.getAuthentication().getOAuth2Request();
 
@@ -265,6 +256,15 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
 
       OAuth2AccessTokenEntity enhancedToken =
           (OAuth2AccessTokenEntity) tokenEnhancer.enhance(token, authentication);
+
+      // attach a refresh token, if this client is allowed to request them, the user gets the
+      // offline scope and grant type differs from client credentials
+      if (client.isAllowRefresh() && enhancedToken.getScope().contains(SystemScopeService.OFFLINE_ACCESS)
+          && !request.getGrantType().equals("client_credentials")) {
+        OAuth2RefreshTokenEntity savedRefreshToken = createRefreshToken(client, enhancedToken.getAuthenticationHolder());
+
+        enhancedToken.setRefreshToken(savedRefreshToken);
+      }
 
       OAuth2AccessTokenEntity savedToken = saveAccessToken(enhancedToken);
 

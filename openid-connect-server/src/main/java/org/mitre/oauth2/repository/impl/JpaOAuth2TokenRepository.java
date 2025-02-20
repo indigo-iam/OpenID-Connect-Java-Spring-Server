@@ -267,14 +267,8 @@ public class JpaOAuth2TokenRepository implements OAuth2TokenRepository {
 	}
 
 	@Override
-	public Set<OAuth2AccessTokenEntity> getAccessTokensForResourceSet(
-			ResourceSet rs) {
-		TypedQuery<OAuth2AccessTokenEntity> query = manager.createNamedQuery(
-				OAuth2AccessTokenEntity.QUERY_BY_RESOURCE_SET,
-				OAuth2AccessTokenEntity.class);
-		query.setParameter(OAuth2AccessTokenEntity.PARAM_RESOURCE_SET_ID,
-				rs.getId());
-		return new LinkedHashSet<>(query.getResultList());
+	public Set<OAuth2AccessTokenEntity> getAccessTokensForResourceSet(ResourceSet rs) {
+	  return Set.of();
 	}
 
 	@Override

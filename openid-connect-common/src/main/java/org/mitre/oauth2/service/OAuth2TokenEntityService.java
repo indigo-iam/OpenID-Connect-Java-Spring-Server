@@ -28,41 +28,45 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 
+import com.nimbusds.jwt.SignedJWT;
+
 @SuppressWarnings("deprecation")
-public interface OAuth2TokenEntityService extends AuthorizationServerTokenServices, ResourceServerTokenServices {
+public interface OAuth2TokenEntityService
+    extends AuthorizationServerTokenServices, ResourceServerTokenServices {
 
-	@Override
-	public OAuth2AccessTokenEntity readAccessToken(String accessTokenValue);
+  @Override
+  public OAuth2AccessTokenEntity readAccessToken(String accessTokenValue);
 
-	public OAuth2RefreshTokenEntity getRefreshToken(String refreshTokenValue);
+  @Override
+  public OAuth2AccessTokenEntity getAccessToken(OAuth2Authentication authentication);
 
-	public void revokeRefreshToken(OAuth2RefreshTokenEntity refreshToken);
+  public OAuth2RefreshTokenEntity getRefreshToken(String refreshTokenValue);
 
-	public void revokeAccessToken(OAuth2AccessTokenEntity accessToken);
+  public void revokeRefreshToken(OAuth2RefreshTokenEntity refreshToken);
 
-	public List<OAuth2AccessTokenEntity> getAccessTokensForClient(ClientDetailsEntity client);
+  public void revokeAccessToken(OAuth2AccessTokenEntity accessToken);
 
-	public List<OAuth2RefreshTokenEntity> getRefreshTokensForClient(ClientDetailsEntity client);
+  public List<OAuth2AccessTokenEntity> getAccessTokensForClient(ClientDetailsEntity client);
 
-	public void clearExpiredTokens();
+  public List<OAuth2RefreshTokenEntity> getRefreshTokensForClient(ClientDetailsEntity client);
 
-	public OAuth2AccessTokenEntity saveAccessToken(OAuth2AccessTokenEntity accessToken);
+  public void clearExpiredTokens();
 
-	public OAuth2RefreshTokenEntity saveRefreshToken(OAuth2RefreshTokenEntity refreshToken);
+  public OAuth2AccessTokenEntity saveAccessToken(OAuth2AccessTokenEntity accessToken);
 
-	@Override
-	public OAuth2AccessTokenEntity getAccessToken(OAuth2Authentication authentication);
+  public OAuth2RefreshTokenEntity saveRefreshToken(OAuth2RefreshTokenEntity refreshToken);
 
-	public OAuth2AccessTokenEntity getAccessTokenById(Long id);
+  public OAuth2AccessTokenEntity getAccessTokenById(Long id);
 
-	public OAuth2RefreshTokenEntity getRefreshTokenById(Long id);
+  public OAuth2RefreshTokenEntity getRefreshTokenById(Long id);
 
-	public Set<OAuth2AccessTokenEntity> getAllAccessTokensForUser(String name);
+  public Set<OAuth2AccessTokenEntity> getAllAccessTokensForUser(String name);
 
-	public Set<OAuth2RefreshTokenEntity> getAllRefreshTokensForUser(String name);
+  public Set<OAuth2RefreshTokenEntity> getAllRefreshTokensForUser(String name);
 
-	public OAuth2AccessTokenEntity getRegistrationAccessTokenForClient(ClientDetailsEntity client);
+  public OAuth2AccessTokenEntity getRegistrationAccessTokenForClient(ClientDetailsEntity client);
 
-	public OAuth2RefreshTokenEntity createRefreshToken(ClientDetailsEntity client, AuthenticationHolderEntity authHolder);
+  public OAuth2RefreshTokenEntity createRefreshToken(ClientDetailsEntity client,
+      AuthenticationHolderEntity authHolder);
 
 }

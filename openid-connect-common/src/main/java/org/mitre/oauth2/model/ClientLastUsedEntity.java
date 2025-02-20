@@ -30,48 +30,48 @@ import javax.persistence.Table;
 @Table(name = "client_last_used")
 public class ClientLastUsedEntity {
 
-    @Id
-    @Column(name = "client_details_id")
-    private Long id;
+  @Id
+  @Column(name = "client_details_id")
+  private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @MapsId
-    @JoinColumn(name = "client_details_id")
-    private ClientDetailsEntity client;
+  @OneToOne(cascade = CascadeType.ALL)
+  @MapsId
+  @JoinColumn(name = "client_details_id")
+  private ClientDetailsEntity client;
 
-    @Column(name = "last_used", nullable = false)
-    private LocalDate lastUsed;
+  @Column(name = "last_used", nullable = false)
+  private LocalDate lastUsed;
 
-    public ClientLastUsedEntity() {
-        // empty constructor
-    }
+  public ClientLastUsedEntity() {
+    // empty constructor
+  }
 
-    public ClientLastUsedEntity(ClientDetailsEntity client, LocalDate lastUsed) {
-        this.client = client;
-        this.lastUsed = lastUsed;
-    }
+  public ClientLastUsedEntity(ClientDetailsEntity client, LocalDate lastUsed) {
+    this.client = client;
+    this.lastUsed = lastUsed;
+  }
 
-    public Long getId() {
-        return id;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public ClientDetailsEntity getClient() {
-        return client;
-    }
+  public ClientDetailsEntity getClient() {
+    return client;
+  }
 
-    public void setClient(ClientDetailsEntity client) {
-        this.client = client;
-    }
+  public void setClient(ClientDetailsEntity client) {
+    this.client = client;
+  }
 
-    public LocalDate getLastUsed() {
-        return lastUsed;
-    }
+  public LocalDate getLastUsed() {
+    return lastUsed;
+  }
 
-    public void setLastUsed(LocalDate lastUsed) {
-        this.lastUsed = lastUsed;
-    }
+  public void setLastUsed(LocalDate lastUsed) {
+    this.lastUsed = lastUsed;
+  }
 }

@@ -27,7 +27,7 @@ import org.mitre.oauth2.model.OAuth2AccessTokenEntity;
 import org.mitre.openid.connect.config.ConfigurationPropertiesBean;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 
 import com.nimbusds.jose.JWSAlgorithm;

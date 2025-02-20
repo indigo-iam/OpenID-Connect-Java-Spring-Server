@@ -17,7 +17,9 @@
  *******************************************************************************/
 package org.mitre.openid.connect.service.impl;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 import java.util.HashSet;
 import java.util.List;
@@ -36,14 +38,11 @@ import org.mitre.openid.connect.service.StatsService;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.annotation.Rollback;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestDefaultApprovedSiteService {
@@ -123,7 +122,6 @@ public class TestDefaultApprovedSiteService {
 		String otherId = "a different id";
 		client.setClientId(otherId);
 		service.clearApprovedSitesForClient(client);
-		Mockito.when(repository.getByClientId(otherId)).thenReturn(new HashSet<ApprovedSite>());
 		Mockito.verify(repository, never()).remove(any(ApprovedSite.class));
 	}
 

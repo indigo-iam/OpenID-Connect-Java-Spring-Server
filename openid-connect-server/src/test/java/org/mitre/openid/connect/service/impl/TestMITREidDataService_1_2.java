@@ -18,14 +18,13 @@ package org.mitre.openid.connect.service.impl;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
@@ -67,7 +66,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,10 +148,10 @@ public class TestMITREidDataService_1_2 {
 		Date expirationDate1 = formatter.parse(expiration1, Locale.ENGLISH);
 
 		ClientDetailsEntity mockedClient1 = mock(ClientDetailsEntity.class);
-		when(mockedClient1.getClientId()).thenReturn("mocked_client_1");
+		lenient().when(mockedClient1.getClientId()).thenReturn("mocked_client_1");
 
 		AuthenticationHolderEntity mockedAuthHolder1 = mock(AuthenticationHolderEntity.class);
-		when(mockedAuthHolder1.getId()).thenReturn(1L);
+		lenient().when(mockedAuthHolder1.getId()).thenReturn(1L);
 
 		OAuth2RefreshTokenEntity token1 = new OAuth2RefreshTokenEntity();
 		token1.setId(1L);
@@ -165,10 +164,10 @@ public class TestMITREidDataService_1_2 {
 		Date expirationDate2 = formatter.parse(expiration2, Locale.ENGLISH);
 
 		ClientDetailsEntity mockedClient2 = mock(ClientDetailsEntity.class);
-		when(mockedClient2.getClientId()).thenReturn("mocked_client_2");
+		lenient().when(mockedClient2.getClientId()).thenReturn("mocked_client_2");
 
 		AuthenticationHolderEntity mockedAuthHolder2 = mock(AuthenticationHolderEntity.class);
-		when(mockedAuthHolder2.getId()).thenReturn(2L);
+		lenient().when(mockedAuthHolder2.getId()).thenReturn(2L);
 
 		OAuth2RefreshTokenEntity token2 = new OAuth2RefreshTokenEntity();
 		token2.setId(2L);
@@ -199,7 +198,7 @@ public class TestMITREidDataService_1_2 {
 		JsonReader reader = new JsonReader(new StringReader(configJson));
 
 		final Map<Long, OAuth2RefreshTokenEntity> fakeDb = new HashMap<>();
-		when(tokenRepository.saveRefreshToken(isA(OAuth2RefreshTokenEntity.class))).thenAnswer(new Answer<OAuth2RefreshTokenEntity>() {
+		lenient().when(tokenRepository.saveRefreshToken(any(OAuth2RefreshTokenEntity.class))).thenAnswer(new Answer<OAuth2RefreshTokenEntity>() {
 			Long id = 332L;
 			@Override
 			public OAuth2RefreshTokenEntity answer(InvocationOnMock invocation) throws Throwable {
@@ -211,28 +210,28 @@ public class TestMITREidDataService_1_2 {
 				return _token;
 			}
 		});
-		when(tokenRepository.getRefreshTokenById(anyLong())).thenAnswer(new Answer<OAuth2RefreshTokenEntity>() {
+		lenient().when(tokenRepository.getRefreshTokenById(anyLong())).thenAnswer(new Answer<OAuth2RefreshTokenEntity>() {
 			@Override
 			public OAuth2RefreshTokenEntity answer(InvocationOnMock invocation) throws Throwable {
 				Long _id = (Long) invocation.getArguments()[0];
 				return fakeDb.get(_id);
 			}
 		});
-		when(clientRepository.getClientByClientId(anyString())).thenAnswer(new Answer<ClientDetailsEntity>() {
+		lenient().when(clientRepository.getClientByClientId(anyString())).thenAnswer(new Answer<ClientDetailsEntity>() {
 			@Override
 			public ClientDetailsEntity answer(InvocationOnMock invocation) throws Throwable {
 				String _clientId = (String) invocation.getArguments()[0];
 				ClientDetailsEntity _client = mock(ClientDetailsEntity.class);
-				when(_client.getClientId()).thenReturn(_clientId);
+				lenient().when(_client.getClientId()).thenReturn(_clientId);
 				return _client;
 			}
 		});
-		when(authHolderRepository.getById(isNull(Long.class))).thenAnswer(new Answer<AuthenticationHolderEntity>() {
+		lenient().when(authHolderRepository.getById(null)).thenAnswer(new Answer<AuthenticationHolderEntity>() {
 			Long id = 131L;
 			@Override
 			public AuthenticationHolderEntity answer(InvocationOnMock invocation) throws Throwable {
 				AuthenticationHolderEntity _auth = mock(AuthenticationHolderEntity.class);
-				when(_auth.getId()).thenReturn(id);
+				lenient().when(_auth.getId()).thenReturn(id);
 				id++;
 				return _auth;
 			}
@@ -269,10 +268,10 @@ public class TestMITREidDataService_1_2 {
 		Date expirationDate1 = formatter.parse(expiration1, Locale.ENGLISH);
 
 		ClientDetailsEntity mockedClient1 = mock(ClientDetailsEntity.class);
-		when(mockedClient1.getClientId()).thenReturn("mocked_client_1");
+		lenient().when(mockedClient1.getClientId()).thenReturn("mocked_client_1");
 
 		AuthenticationHolderEntity mockedAuthHolder1 = mock(AuthenticationHolderEntity.class);
-		when(mockedAuthHolder1.getId()).thenReturn(1L);
+		lenient().when(mockedAuthHolder1.getId()).thenReturn(1L);
 
 		OAuth2AccessTokenEntity token1 = new OAuth2AccessTokenEntity();
 		token1.setId(1L);
@@ -287,13 +286,13 @@ public class TestMITREidDataService_1_2 {
 		Date expirationDate2 = formatter.parse(expiration2, Locale.ENGLISH);
 
 		ClientDetailsEntity mockedClient2 = mock(ClientDetailsEntity.class);
-		when(mockedClient2.getClientId()).thenReturn("mocked_client_2");
+		lenient().when(mockedClient2.getClientId()).thenReturn("mocked_client_2");
 
 		AuthenticationHolderEntity mockedAuthHolder2 = mock(AuthenticationHolderEntity.class);
-		when(mockedAuthHolder2.getId()).thenReturn(2L);
+		lenient().when(mockedAuthHolder2.getId()).thenReturn(2L);
 
 		OAuth2RefreshTokenEntity mockRefreshToken2 = mock(OAuth2RefreshTokenEntity.class);
-		when(mockRefreshToken2.getId()).thenReturn(1L);
+		lenient().when(mockRefreshToken2.getId()).thenReturn(1L);
 
 		OAuth2AccessTokenEntity token2 = new OAuth2AccessTokenEntity();
 		token2.setId(2L);
@@ -331,7 +330,7 @@ public class TestMITREidDataService_1_2 {
 		JsonReader reader = new JsonReader(new StringReader(configJson));
 
 		final Map<Long, OAuth2AccessTokenEntity> fakeDb = new HashMap<>();
-		when(tokenRepository.saveAccessToken(isA(OAuth2AccessTokenEntity.class))).thenAnswer(new Answer<OAuth2AccessTokenEntity>() {
+		lenient().when(tokenRepository.saveAccessToken(any(OAuth2AccessTokenEntity.class))).thenAnswer(new Answer<OAuth2AccessTokenEntity>() {
 			Long id = 324L;
 			@Override
 			public OAuth2AccessTokenEntity answer(InvocationOnMock invocation) throws Throwable {
@@ -343,28 +342,28 @@ public class TestMITREidDataService_1_2 {
 				return _token;
 			}
 		});
-		when(tokenRepository.getAccessTokenById(anyLong())).thenAnswer(new Answer<OAuth2AccessTokenEntity>() {
+		lenient().when(tokenRepository.getAccessTokenById(anyLong())).thenAnswer(new Answer<OAuth2AccessTokenEntity>() {
 			@Override
 			public OAuth2AccessTokenEntity answer(InvocationOnMock invocation) throws Throwable {
 				Long _id = (Long) invocation.getArguments()[0];
 				return fakeDb.get(_id);
 			}
 		});
-		when(clientRepository.getClientByClientId(anyString())).thenAnswer(new Answer<ClientDetailsEntity>() {
+		lenient().when(clientRepository.getClientByClientId(anyString())).thenAnswer(new Answer<ClientDetailsEntity>() {
 			@Override
 			public ClientDetailsEntity answer(InvocationOnMock invocation) throws Throwable {
 				String _clientId = (String) invocation.getArguments()[0];
 				ClientDetailsEntity _client = mock(ClientDetailsEntity.class);
-				when(_client.getClientId()).thenReturn(_clientId);
+				lenient().when(_client.getClientId()).thenReturn(_clientId);
 				return _client;
 			}
 		});
-		when(authHolderRepository.getById(isNull(Long.class))).thenAnswer(new Answer<AuthenticationHolderEntity>() {
+		lenient().when(authHolderRepository.getById(null)).thenAnswer(new Answer<AuthenticationHolderEntity>() {
 			Long id = 133L;
 			@Override
 			public AuthenticationHolderEntity answer(InvocationOnMock invocation) throws Throwable {
 				AuthenticationHolderEntity _auth = mock(AuthenticationHolderEntity.class);
-				when(_auth.getId()).thenReturn(id);
+				lenient().when(_auth.getId()).thenReturn(id);
 				id++;
 				return _auth;
 			}
@@ -546,7 +545,7 @@ public class TestMITREidDataService_1_2 {
 		JsonReader reader = new JsonReader(new StringReader(configJson));
 
 		final Map<Long, WhitelistedSite> fakeDb = new HashMap<>();
-		when(wlSiteRepository.save(isA(WhitelistedSite.class))).thenAnswer(new Answer<WhitelistedSite>() {
+		lenient().when(wlSiteRepository.save(any(WhitelistedSite.class))).thenAnswer(new Answer<WhitelistedSite>() {
 			Long id = 333L;
 			@Override
 			public WhitelistedSite answer(InvocationOnMock invocation) throws Throwable {
@@ -558,7 +557,7 @@ public class TestMITREidDataService_1_2 {
 				return _site;
 			}
 		});
-		when(wlSiteRepository.getById(anyLong())).thenAnswer(new Answer<WhitelistedSite>() {
+		lenient().when(wlSiteRepository.getById(anyLong())).thenAnswer(new Answer<WhitelistedSite>() {
 			@Override
 			public WhitelistedSite answer(InvocationOnMock invocation) throws Throwable {
 				Long _id = (Long) invocation.getArguments()[0];
@@ -585,7 +584,7 @@ public class TestMITREidDataService_1_2 {
 		Date accessDate1 = formatter.parse("2014-09-10T23:49:44.090+00:00", Locale.ENGLISH);
 
 		OAuth2AccessTokenEntity mockToken1 = mock(OAuth2AccessTokenEntity.class);
-		when(mockToken1.getId()).thenReturn(1L);
+		lenient().when(mockToken1.getId()).thenReturn(1L);
 
 		ApprovedSite site1 = new ApprovedSite();
 		site1.setId(1L);
@@ -594,7 +593,7 @@ public class TestMITREidDataService_1_2 {
 		site1.setAccessDate(accessDate1);
 		site1.setUserId("user1");
 		site1.setAllowedScopes(ImmutableSet.of("openid", "phone"));
-		when(mockToken1.getApprovedSite()).thenReturn(site1);
+		lenient().when(mockToken1.getApprovedSite()).thenReturn(site1);
 
 		Date creationDate2 = formatter.parse("2014-09-11T18:49:44.090+00:00", Locale.ENGLISH);
 		Date accessDate2 = formatter.parse("2014-09-11T20:49:44.090+00:00", Locale.ENGLISH);
@@ -634,7 +633,7 @@ public class TestMITREidDataService_1_2 {
 		JsonReader reader = new JsonReader(new StringReader(configJson));
 
 		final Map<Long, ApprovedSite> fakeDb = new HashMap<>();
-		when(approvedSiteRepository.save(isA(ApprovedSite.class))).thenAnswer(new Answer<ApprovedSite>() {
+		lenient().when(approvedSiteRepository.save(any(ApprovedSite.class))).thenAnswer(new Answer<ApprovedSite>() {
 			Long id = 364L;
 			@Override
 			public ApprovedSite answer(InvocationOnMock invocation) throws Throwable {
@@ -646,28 +645,28 @@ public class TestMITREidDataService_1_2 {
 				return _site;
 			}
 		});
-		when(approvedSiteRepository.getById(anyLong())).thenAnswer(new Answer<ApprovedSite>() {
+		lenient().when(approvedSiteRepository.getById(anyLong())).thenAnswer(new Answer<ApprovedSite>() {
 			@Override
 			public ApprovedSite answer(InvocationOnMock invocation) throws Throwable {
 				Long _id = (Long) invocation.getArguments()[0];
 				return fakeDb.get(_id);
 			}
 		});
-		when(wlSiteRepository.getById(isNull(Long.class))).thenAnswer(new Answer<WhitelistedSite>() {
+		lenient().when(wlSiteRepository.getById(null)).thenAnswer(new Answer<WhitelistedSite>() {
 			Long id = 432L;
 			@Override
 			public WhitelistedSite answer(InvocationOnMock invocation) throws Throwable {
 				WhitelistedSite _site = mock(WhitelistedSite.class);
-				when(_site.getId()).thenReturn(id++);
+				lenient().when(_site.getId()).thenReturn(id++);
 				return _site;
 			}
 		});
-		when(tokenRepository.getAccessTokenById(isNull(Long.class))).thenAnswer(new Answer<OAuth2AccessTokenEntity>() {
+		lenient().when(tokenRepository.getAccessTokenById(null)).thenAnswer(new Answer<OAuth2AccessTokenEntity>() {
 			Long id = 245L;
 			@Override
 			public OAuth2AccessTokenEntity answer(InvocationOnMock invocation) throws Throwable {
 				OAuth2AccessTokenEntity _token = mock(OAuth2AccessTokenEntity.class);
-				when(_token.getId()).thenReturn(id++);
+				lenient().when(_token.getId()).thenReturn(id++);
 				return _token;
 			}
 		});
@@ -737,7 +736,7 @@ public class TestMITREidDataService_1_2 {
 		JsonReader reader = new JsonReader(new StringReader(configJson));
 
 		final Map<Long, AuthenticationHolderEntity> fakeDb = new HashMap<>();
-		when(authHolderRepository.save(isA(AuthenticationHolderEntity.class))).thenAnswer(new Answer<AuthenticationHolderEntity>() {
+		lenient().when(authHolderRepository.save(any(AuthenticationHolderEntity.class))).thenAnswer(new Answer<AuthenticationHolderEntity>() {
 			Long id = 243L;
 			@Override
 			public AuthenticationHolderEntity answer(InvocationOnMock invocation) throws Throwable {
@@ -840,7 +839,7 @@ public class TestMITREidDataService_1_2 {
 		Date expirationDate1 = formatter.parse(expiration1, Locale.ENGLISH);
 
 		ClientDetailsEntity mockedClient1 = mock(ClientDetailsEntity.class);
-		when(mockedClient1.getClientId()).thenReturn("mocked_client_1");
+		lenient().when(mockedClient1.getClientId()).thenReturn("mocked_client_1");
 
 		OAuth2Request req1 = new OAuth2Request(new HashMap<String, String>(), "client1", new ArrayList<GrantedAuthority>(),
 				true, new HashSet<String>(), new HashSet<String>(), "http://foo.com",
@@ -863,7 +862,7 @@ public class TestMITREidDataService_1_2 {
 		Date expirationDate2 = formatter.parse(expiration2, Locale.ENGLISH);
 
 		ClientDetailsEntity mockedClient2 = mock(ClientDetailsEntity.class);
-		when(mockedClient2.getClientId()).thenReturn("mocked_client_2");
+		lenient().when(mockedClient2.getClientId()).thenReturn("mocked_client_2");
 
 		OAuth2Request req2 = new OAuth2Request(new HashMap<String, String>(), "client2", new ArrayList<GrantedAuthority>(),
 				true, new HashSet<String>(), new HashSet<String>(), "http://bar.com",
@@ -910,7 +909,7 @@ public class TestMITREidDataService_1_2 {
 		JsonReader reader = new JsonReader(new StringReader(configJson));
 		final Map<Long, OAuth2RefreshTokenEntity> fakeRefreshTokenTable = new HashMap<>();
 		final Map<Long, AuthenticationHolderEntity> fakeAuthHolderTable = new HashMap<>();
-		when(tokenRepository.saveRefreshToken(isA(OAuth2RefreshTokenEntity.class))).thenAnswer(new Answer<OAuth2RefreshTokenEntity>() {
+		lenient().when(tokenRepository.saveRefreshToken(any(OAuth2RefreshTokenEntity.class))).thenAnswer(new Answer<OAuth2RefreshTokenEntity>() {
 			Long id = 343L;
 			@Override
 			public OAuth2RefreshTokenEntity answer(InvocationOnMock invocation) throws Throwable {
@@ -922,23 +921,23 @@ public class TestMITREidDataService_1_2 {
 				return _token;
 			}
 		});
-		when(tokenRepository.getRefreshTokenById(anyLong())).thenAnswer(new Answer<OAuth2RefreshTokenEntity>() {
+		lenient().when(tokenRepository.getRefreshTokenById(anyLong())).thenAnswer(new Answer<OAuth2RefreshTokenEntity>() {
 			@Override
 			public OAuth2RefreshTokenEntity answer(InvocationOnMock invocation) throws Throwable {
 				Long _id = (Long) invocation.getArguments()[0];
 				return fakeRefreshTokenTable.get(_id);
 			}
 		});
-		when(clientRepository.getClientByClientId(anyString())).thenAnswer(new Answer<ClientDetailsEntity>() {
+		lenient().when(clientRepository.getClientByClientId(anyString())).thenAnswer(new Answer<ClientDetailsEntity>() {
 			@Override
 			public ClientDetailsEntity answer(InvocationOnMock invocation) throws Throwable {
 				String _clientId = (String) invocation.getArguments()[0];
 				ClientDetailsEntity _client = mock(ClientDetailsEntity.class);
-				when(_client.getClientId()).thenReturn(_clientId);
+				lenient().when(_client.getClientId()).thenReturn(_clientId);
 				return _client;
 			}
 		});
-		when(authHolderRepository.save(isA(AuthenticationHolderEntity.class))).thenAnswer(new Answer<AuthenticationHolderEntity>() {
+		lenient().when(authHolderRepository.save(any(AuthenticationHolderEntity.class))).thenAnswer(new Answer<AuthenticationHolderEntity>() {
 			Long id = 356L;
 			@Override
 			public AuthenticationHolderEntity answer(InvocationOnMock invocation) throws Throwable {
@@ -950,7 +949,7 @@ public class TestMITREidDataService_1_2 {
 				return _holder;
 			}
 		});
-		when(authHolderRepository.getById(anyLong())).thenAnswer(new Answer<AuthenticationHolderEntity>() {
+		lenient().when(authHolderRepository.getById(anyLong())).thenAnswer(new Answer<AuthenticationHolderEntity>() {
 			@Override
 			public AuthenticationHolderEntity answer(InvocationOnMock invocation) throws Throwable {
 				Long _id = (Long) invocation.getArguments()[0];

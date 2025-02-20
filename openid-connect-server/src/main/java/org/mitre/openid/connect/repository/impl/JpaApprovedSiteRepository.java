@@ -39,66 +39,71 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class JpaApprovedSiteRepository implements ApprovedSiteRepository {
 
-	@PersistenceContext(unitName="defaultPersistenceUnit")
-	private EntityManager manager;
+  @PersistenceContext(unitName = "defaultPersistenceUnit")
+  private EntityManager manager;
 
-	@Override
-	@Transactional(value="defaultTransactionManager")
-	public Collection<ApprovedSite> getAll() {
-		TypedQuery<ApprovedSite> query = manager.createNamedQuery(ApprovedSite.QUERY_ALL, ApprovedSite.class);
-		return query.getResultList();
-	}
+  @Override
+  @Transactional(value = "defaultTransactionManager")
+  public Collection<ApprovedSite> getAll() {
+    TypedQuery<ApprovedSite> query =
+        manager.createNamedQuery(ApprovedSite.QUERY_ALL, ApprovedSite.class);
+    return query.getResultList();
+  }
 
-	@Override
-	@Transactional(value="defaultTransactionManager")
-	public ApprovedSite getById(Long id) {
-		return manager.find(ApprovedSite.class, id);
-	}
+  @Override
+  @Transactional(value = "defaultTransactionManager")
+  public ApprovedSite getById(Long id) {
+    return manager.find(ApprovedSite.class, id);
+  }
 
-	@Override
-	@Transactional(value="defaultTransactionManager")
-	public void remove(ApprovedSite approvedSite) {
-		ApprovedSite found = manager.find(ApprovedSite.class, approvedSite.getId());
+  @Override
+  @Transactional(value = "defaultTransactionManager")
+  public void remove(ApprovedSite approvedSite) {
+    ApprovedSite found = manager.find(ApprovedSite.class, approvedSite.getId());
 
-		if (found != null) {
-			manager.remove(found);
-		} else {
-			throw new IllegalArgumentException();
-		}
-	}
+    if (found != null) {
+      manager.remove(found);
+    } else {
+      throw new IllegalArgumentException();
+    }
+  }
 
-	@Override
-	@Transactional(value="defaultTransactionManager")
-	public ApprovedSite save(ApprovedSite approvedSite) {
-		return saveOrUpdate(approvedSite.getId(), manager, approvedSite);
-	}
+  @Override
+  @Transactional(value = "defaultTransactionManager")
+  public ApprovedSite save(ApprovedSite approvedSite) {
+    return saveOrUpdate(approvedSite.getId(), manager, approvedSite);
+  }
 
-	@Override
-	public Collection<ApprovedSite> getByClientIdAndUserId(String clientId, String userId) {
+  @Override
+  @Transactional(value = "defaultTransactionManager")
+  public Collection<ApprovedSite> getByClientIdAndUserId(String clientId, String userId) {
 
-		TypedQuery<ApprovedSite> query = manager.createNamedQuery(ApprovedSite.QUERY_BY_CLIENT_ID_AND_USER_ID, ApprovedSite.class);
-		query.setParameter(ApprovedSite.PARAM_USER_ID, userId);
-		query.setParameter(ApprovedSite.PARAM_CLIENT_ID, clientId);
+    TypedQuery<ApprovedSite> query =
+        manager.createNamedQuery(ApprovedSite.QUERY_BY_CLIENT_ID_AND_USER_ID, ApprovedSite.class);
+    query.setParameter(ApprovedSite.PARAM_USER_ID, userId);
+    query.setParameter(ApprovedSite.PARAM_CLIENT_ID, clientId);
 
-		return query.getResultList();
-	}
+    return query.getResultList();
+  }
 
-	@Override
-	@Transactional(value="defaultTransactionManager")
-	public Collection<ApprovedSite> getByUserId(String userId) {
-		TypedQuery<ApprovedSite> query = manager.createNamedQuery(ApprovedSite.QUERY_BY_USER_ID, ApprovedSite.class);
-		query.setParameter(ApprovedSite.PARAM_USER_ID, userId);
+  @Override
+  @Transactional(value = "defaultTransactionManager")
+  public Collection<ApprovedSite> getByUserId(String userId) {
+    TypedQuery<ApprovedSite> query =
+        manager.createNamedQuery(ApprovedSite.QUERY_BY_USER_ID, ApprovedSite.class);
+    query.setParameter(ApprovedSite.PARAM_USER_ID, userId);
 
-		return query.getResultList();
+    return query.getResultList();
 
-	}
+  }
 
-	@Override
-	@Transactional(value="defaultTransactionManager")
-	public Collection<ApprovedSite> getByClientId(String clientId) {
-		TypedQuery<ApprovedSite> query = manager.createNamedQuery(ApprovedSite.QUERY_BY_CLIENT_ID, ApprovedSite.class);
-		query.setParameter(ApprovedSite.PARAM_CLIENT_ID, clientId);
+  @Override
+  @Transactional(value = "defaultTransactionManager")
+  public Collection<ApprovedSite> getByClientId(String clientId) {
+    TypedQuery<ApprovedSite> query =
+        manager.createNamedQuery(ApprovedSite.QUERY_BY_CLIENT_ID, ApprovedSite.class);
+    query.setParameter(ApprovedSite.PARAM_CLIENT_ID, clientId);
 
-		return query.getResultList();
-	}
+    return query.getResultList();
+  }
 }

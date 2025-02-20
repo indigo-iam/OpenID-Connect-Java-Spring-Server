@@ -16,7 +16,12 @@
 package org.mitre.oauth2.service.impl;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,15 +43,6 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-
-import static org.junit.Assert.assertThat;
 
 public class TestDefaultIntrospectionResultAssembler {
 
@@ -58,7 +54,7 @@ public class TestDefaultIntrospectionResultAssembler {
 	public void shouldAssembleExpectedResultForAccessToken() throws ParseException {
 
 		// given
-		OAuth2AccessTokenEntity accessToken = accessToken(new Date(123 * 1000L), scopes("foo", "bar"), null, "Bearer",
+		OAuth2AccessTokenEntity accessToken = accessToken(new Date(123 * 1000L), scopes("foo", "bar"), "Bearer",
 				oauth2AuthenticationWithUser(oauth2Request("clientId"), "name"));
 
 		UserInfo userInfo = userInfo("sub");
@@ -84,49 +80,10 @@ public class TestDefaultIntrospectionResultAssembler {
 	}
 
 	@Test
-	public void shouldAssembleExpectedResultForAccessToken_withPermissions() throws ParseException {
-
-		// given
-		OAuth2AccessTokenEntity accessToken = accessToken(new Date(123 * 1000L), scopes("foo", "bar"),
-				permissions(permission(1L, "foo", "bar")),
-				"Bearer", oauth2AuthenticationWithUser(oauth2Request("clientId"), "name"));
-
-		UserInfo userInfo = userInfo("sub");
-
-		Set<String> authScopes = scopes("foo", "bar", "baz");
-
-		// when
-		Map<String, Object> result = assembler.assembleFrom(accessToken, userInfo, authScopes);
-
-
-		// then
-		Map<String, Object> expected = new ImmutableMap.Builder<String, Object>()
-				.put("sub", "sub")
-				.put("exp", 123L)
-				.put("expires_at", dateFormat.valueToString(new Date(123 * 1000L)))
-				.put("permissions", new ImmutableSet.Builder<>()
-						.add(new ImmutableMap.Builder<String, Object>()
-								.put("resource_set_id", "1") // note that the resource ID comes out as a string
-								.put("scopes", new ImmutableSet.Builder<>()
-										.add("bar")
-										.add("foo")
-										.build())
-								.build())
-						.build())
-				// note that scopes are not included if permissions are included
-				.put("active", Boolean.TRUE)
-				.put("user_id", "name")
-				.put("client_id", "clientId")
-				.put("token_type", "Bearer")
-				.build();
-		assertThat(result, is(equalTo(expected)));
-	}
-
-	@Test
 	public void shouldAssembleExpectedResultForAccessTokenWithoutUserInfo() throws ParseException {
 
 		// given
-		OAuth2AccessTokenEntity accessToken = accessToken(new Date(123 * 1000L), scopes("foo", "bar"), null, "Bearer",
+		OAuth2AccessTokenEntity accessToken = accessToken(new Date(123 * 1000L), scopes("foo", "bar"), "Bearer",
 				oauth2AuthenticationWithUser(oauth2Request("clientId"), "name"));
 
 		Set<String> authScopes = scopes("foo", "bar", "baz");
@@ -153,7 +110,7 @@ public class TestDefaultIntrospectionResultAssembler {
 	public void shouldAssembleExpectedResultForAccessTokenWithoutExpiry() {
 
 		// given
-		OAuth2AccessTokenEntity accessToken = accessToken(null, scopes("foo", "bar"), null, "Bearer",
+		OAuth2AccessTokenEntity accessToken = accessToken(null, scopes("foo", "bar"), "Bearer",
 				oauth2AuthenticationWithUser(oauth2Request("clientId"), "name"));
 
 		UserInfo userInfo = userInfo("sub");
@@ -179,7 +136,7 @@ public class TestDefaultIntrospectionResultAssembler {
 	@Test
 	public void shouldAssembleExpectedResultForAccessTokenWithoutUserAuthentication() throws ParseException {
 		// given
-		OAuth2AccessTokenEntity accessToken = accessToken(new Date(123 * 1000L), scopes("foo", "bar"), null, "Bearer",
+		OAuth2AccessTokenEntity accessToken = accessToken(new Date(123 * 1000L), scopes("foo", "bar"), "Bearer",
 				oauth2Authentication(oauth2Request("clientId"), null));
 
 		Set<String> authScopes = scopes("foo", "bar", "baz");
@@ -311,11 +268,10 @@ public class TestDefaultIntrospectionResultAssembler {
 		return userInfo;
 	}
 
-	private OAuth2AccessTokenEntity accessToken(Date exp, Set<String> scopes, Set<Permission> permissions, String tokenType, OAuth2Authentication authentication) {
+	private OAuth2AccessTokenEntity accessToken(Date exp, Set<String> scopes, String tokenType, OAuth2Authentication authentication) {
 		OAuth2AccessTokenEntity accessToken = mock(OAuth2AccessTokenEntity.class, RETURNS_DEEP_STUBS);
 		given(accessToken.getExpiration()).willReturn(exp);
 		given(accessToken.getScope()).willReturn(scopes);
-		given(accessToken.getPermissions()).willReturn(permissions);
 		given(accessToken.getTokenType()).willReturn(tokenType);
 		given(accessToken.getAuthenticationHolder().getAuthentication()).willReturn(authentication);
 		return accessToken;

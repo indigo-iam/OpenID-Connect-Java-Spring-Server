@@ -17,6 +17,11 @@
  *******************************************************************************/
 package org.mitre.oauth2.service.impl;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+
 import java.util.Set;
 
 import org.junit.Before;
@@ -27,15 +32,9 @@ import org.mitre.oauth2.repository.SystemScopeRepository;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.google.common.collect.Sets;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-
-import static org.junit.Assert.assertThat;
 
 /**
  * @author wkim

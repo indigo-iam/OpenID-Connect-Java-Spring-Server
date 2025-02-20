@@ -17,22 +17,24 @@
  *******************************************************************************/
 package org.mitre.openid.connect.client.service.impl;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mitre.oauth2.model.RegisteredClient;
 import org.mitre.openid.connect.config.ServerConfiguration;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * @author wkim
@@ -41,77 +43,80 @@ import static org.junit.Assert.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class TestHybridClientConfigurationService {
 
-	@Mock
-	private StaticClientConfigurationService mockStaticService;
+  @Mock
+  private StaticClientConfigurationService mockStaticService;
 
-	@Mock
-	private DynamicRegistrationClientConfigurationService mockDynamicService;
+  @Mock
+  private DynamicRegistrationClientConfigurationService mockDynamicService;
 
-	@InjectMocks
-	private HybridClientConfigurationService hybridService;
+  @InjectMocks
+  private HybridClientConfigurationService hybridService;
 
-	// test fixture
+  // test fixture
 
-	@Mock
-	private RegisteredClient mockClient;
+  @Mock
+  private RegisteredClient mockClient;
 
-	@Mock
-	private ServerConfiguration mockServerConfig;
+  @Mock
+  private ServerConfiguration mockServerConfig;
 
-	private String issuer = "https://www.example.com/";
+  private String issuer = "https://www.example.com/";
 
-	@Before
-	public void prepare() {
+  @Before
+  public void prepare() {
 
-		Mockito.reset(mockDynamicService, mockStaticService);
+    reset(mockDynamicService, mockStaticService);
 
-		Mockito.when(mockServerConfig.getIssuer()).thenReturn(issuer);
+    lenient().when(mockServerConfig.getIssuer()).thenReturn(issuer);
 
-	}
+  }
 
-	@Test
-	public void getClientConfiguration_useStatic() {
+  @Test
+  public void getClientConfiguration_useStatic() {
 
-		Mockito.when(mockStaticService.getClientConfiguration(mockServerConfig)).thenReturn(mockClient);
+    lenient().when(mockStaticService.getClientConfiguration(mockServerConfig)).thenReturn(mockClient);
 
-		RegisteredClient result = hybridService.getClientConfiguration(mockServerConfig);
+    RegisteredClient result = hybridService.getClientConfiguration(mockServerConfig);
 
-		Mockito.verify(mockStaticService).getClientConfiguration(mockServerConfig);
-		Mockito.verify(mockDynamicService, Mockito.never()).getClientConfiguration(Matchers.any(ServerConfiguration.class));
-		assertEquals(mockClient, result);
-	}
+    verify(mockStaticService).getClientConfiguration(mockServerConfig);
+    verify(mockDynamicService, Mockito.never())
+      .getClientConfiguration(any(ServerConfiguration.class));
+    assertEquals(mockClient, result);
+  }
 
-	@Test
-	public void getClientConfiguration_useDynamic() {
+  @Test
+  public void getClientConfiguration_useDynamic() {
 
-		Mockito.when(mockStaticService.getClientConfiguration(mockServerConfig)).thenReturn(null);
-		Mockito.when(mockDynamicService.getClientConfiguration(mockServerConfig)).thenReturn(mockClient);
+    lenient().when(mockStaticService.getClientConfiguration(mockServerConfig)).thenReturn(null);
+    lenient().when(mockDynamicService.getClientConfiguration(mockServerConfig))
+      .thenReturn(mockClient);
 
-		RegisteredClient result = hybridService.getClientConfiguration(mockServerConfig);
+    RegisteredClient result = hybridService.getClientConfiguration(mockServerConfig);
 
-		Mockito.verify(mockStaticService).getClientConfiguration(mockServerConfig);
-		Mockito.verify(mockDynamicService).getClientConfiguration(mockServerConfig);
-		assertEquals(mockClient, result);
-	}
+    verify(mockStaticService).getClientConfiguration(mockServerConfig);
+    verify(mockDynamicService).getClientConfiguration(mockServerConfig);
+    assertEquals(mockClient, result);
+  }
 
-	/**
-	 * Checks the behavior when the issuer is not known.
-	 */
-	@Test
-	public void getClientConfiguration_noIssuer() {
+  /**
+   * Checks the behavior when the issuer is not known.
+   */
+  @Test
+  public void getClientConfiguration_noIssuer() {
 
-		// The mockServerConfig is known to both services
-		Mockito.when(mockStaticService.getClientConfiguration(mockServerConfig)).thenReturn(mockClient);
-		Mockito.when(mockDynamicService.getClientConfiguration(mockServerConfig)).thenReturn(mockClient);
+    // The mockServerConfig is known to both services
+    lenient().when(mockStaticService.getClientConfiguration(mockServerConfig)).thenReturn(mockClient);
+    lenient().when(mockDynamicService.getClientConfiguration(mockServerConfig))
+      .thenReturn(mockClient);
 
-		// But oh noes! We're going to ask it to find us some other issuer
-		ServerConfiguration badIssuer = Mockito.mock(ServerConfiguration.class);
-		Mockito.when(badIssuer.getIssuer()).thenReturn("www.badexample.com");
+    // But oh noes! We're going to ask it to find us some other issuer
+    ServerConfiguration badIssuer = Mockito.mock(ServerConfiguration.class);
+    lenient().when(badIssuer.getIssuer()).thenReturn("www.badexample.com");
 
-		RegisteredClient result = hybridService.getClientConfiguration(badIssuer);
+    RegisteredClient result = hybridService.getClientConfiguration(badIssuer);
 
-		Mockito.verify(mockStaticService).getClientConfiguration(badIssuer);
-		Mockito.verify(mockDynamicService).getClientConfiguration(badIssuer);
-		assertThat(result, is(nullValue()));
-	}
+    verify(mockStaticService).getClientConfiguration(badIssuer);
+    verify(mockDynamicService).getClientConfiguration(badIssuer);
+    assertThat(result, is(nullValue()));
+  }
 }

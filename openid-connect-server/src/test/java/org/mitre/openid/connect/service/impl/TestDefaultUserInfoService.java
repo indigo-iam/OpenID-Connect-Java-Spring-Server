@@ -20,6 +20,10 @@
  */
 package org.mitre.openid.connect.service.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,15 +35,11 @@ import org.mitre.openid.connect.model.UserInfo;
 import org.mitre.openid.connect.repository.UserInfoRepository;
 import org.mitre.openid.connect.service.PairwiseIdentiferService;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author jricher
@@ -189,7 +189,7 @@ public class TestDefaultUserInfoService {
 
 		Mockito.when(userInfoRepository.getByUsername(regularUsername)).thenReturn(userInfoRegular);
 
-		Mockito.verify(pairwiseIdentiferService, Mockito.never()).getIdentifier(Matchers.any(UserInfo.class), Matchers.any(ClientDetailsEntity.class));
+		Mockito.verify(pairwiseIdentiferService, Mockito.never()).getIdentifier(any(UserInfo.class), any(ClientDetailsEntity.class));
 
 		UserInfo user1 = service.getByUsernameAndClientId(regularUsername, publicClientId1);
 		UserInfo user2 = service.getByUsernameAndClientId(regularUsername, publicClientId2);

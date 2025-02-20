@@ -20,6 +20,10 @@
  */
 package org.mitre.openid.connect.service.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.mockito.ArgumentMatchers.any;
+
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,15 +37,11 @@ import org.mitre.openid.connect.model.PairwiseIdentifier;
 import org.mitre.openid.connect.model.UserInfo;
 import org.mitre.openid.connect.repository.PairwiseIdentifierRepository;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableSet;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 
 /**
  * @author jricher
@@ -153,7 +153,7 @@ public class TestUUIDPairwiseIdentiferService {
 	public void testGetIdentifier_newEqual() {
 
 		String pairwise1 = service.getIdentifier(userInfoRegular, pairwiseClient1);
-		Mockito.verify(pairwiseIdentifierRepository, Mockito.atLeast(1)).save(Matchers.any(PairwiseIdentifier.class));
+		Mockito.verify(pairwiseIdentifierRepository, Mockito.atLeast(1)).save(any(PairwiseIdentifier.class));
 
 		PairwiseIdentifier pairwiseId = new PairwiseIdentifier();
 		pairwiseId.setUserSub(regularSub);

@@ -30,6 +30,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,8 +47,6 @@ import org.mitre.oauth2.repository.OAuth2TokenRepository;
 import org.mitre.oauth2.service.ClientDetailsEntityService;
 import org.mitre.oauth2.service.OAuth2TokenEntityService;
 import org.mitre.oauth2.service.SystemScopeService;
-import org.mitre.openid.connect.model.ApprovedSite;
-import org.mitre.openid.connect.service.ApprovedSiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,9 +99,6 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
   @Autowired
   private SystemScopeService scopeService;
 
-  @Autowired
-  private ApprovedSiteService approvedSiteService;
-
   @Override
   public Set<OAuth2AccessTokenEntity> getAllAccessTokensForUser(String userName) {
     return tokenRepository.getAccessTokensByUserName(userName);
@@ -121,40 +117,6 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
   @Override
   public OAuth2RefreshTokenEntity getRefreshTokenById(Long id) {
     return tokenRepository.getRefreshTokenById(id);
-  }
-
-  /**
-   * Utility function to delete an access token that's expired before returning it.
-   * 
-   * @param token the token to check
-   * @return null if the token is null or expired, the input token (unchanged) if it hasn't
-   */
-  protected OAuth2AccessTokenEntity clearExpiredAccessToken(OAuth2AccessTokenEntity token) {
-    if (token == null) {
-      return null;
-    }
-    if (!token.isExpired()) {
-      return token;
-    }
-    revokeAccessToken(token);
-    return null;
-  }
-
-  /**
-   * Utility function to delete a refresh token that's expired before returning it.
-   * 
-   * @param token the token to check
-   * @return null if the token is null or expired, the input token (unchanged) if it hasn't
-   */
-  protected OAuth2RefreshTokenEntity clearExpiredRefreshToken(OAuth2RefreshTokenEntity token) {
-    if (token == null) {
-      return null;
-    }
-    if (!token.isExpired()) {
-      return token;
-    }
-    revokeRefreshToken(token);
-    return null;
   }
 
   @Override
@@ -206,65 +168,34 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
 
       }
 
-      OAuth2AccessTokenEntity token = new OAuth2AccessTokenEntity();// accessTokenFactory.createNewAccessToken();
-
-      // attach the client
-      token.setClient(client);
-
-      // inherit the scope from the auth, but make a new set so it is
-      // not unmodifiable. Unmodifiables don't play nicely with Eclipselink, which
-      // wants to use the clone operation.
+      OAuth2AccessTokenEntity at = new OAuth2AccessTokenEntity();
+      // client
+      at.setClient(client);
+      // scopes
       Set<SystemScope> scopes = scopeService.fromStrings(request.getScope());
-
-      // remove any of the special system scopes
       scopes = scopeService.removeReservedScopes(scopes);
+      at.setScope(scopeService.toStrings(scopes));
+      // expiration
+      at.setExpiration(computeExpiration(client));
 
-      token.setScope(scopeService.toStrings(scopes));
-      token.setExpiration(computeExpiration(client));
-
-      // attach the authorization so that we can look it up later
+      // create AuthenticationHolderEntity for refresh token
       AuthenticationHolderEntity authHolder = new AuthenticationHolderEntity();
       authHolder.setAuthentication(authentication);
-      authHolder = authenticationHolderRepository.save(authHolder);
-
-      token.setAuthenticationHolder(authHolder);
+      at.setAuthenticationHolder(authHolder);
 
       // attach a refresh token, if this client is allowed to request them, the user gets the
       // offline scope and grant type differs from client credentials
-      if (client.isAllowRefresh() && token.getScope().contains(SystemScopeService.OFFLINE_ACCESS)
+      if (client.isAllowRefresh() && at.getScope().contains(SystemScopeService.OFFLINE_ACCESS)
           && !request.getGrantType().equals("client_credentials")) {
 
-        token.setRefreshToken(createRefreshToken(client, authHolder));
+        at.setRefreshToken(createRefreshToken(client, authHolder));
       }
 
-      // Add approved site reference, if any
-      OAuth2Request originalAuthRequest = authHolder.getAuthentication().getOAuth2Request();
-
-      if (originalAuthRequest.getExtensions() != null
-          && originalAuthRequest.getExtensions().containsKey("approved_site")) {
-
-        Long apId =
-            Long.parseLong((String) originalAuthRequest.getExtensions().get("approved_site"));
-        ApprovedSite ap = approvedSiteService.getById(apId);
-
-        token.setApprovedSite(ap);
-      }
-
-      OAuth2AccessTokenEntity enhancedToken =
-          (OAuth2AccessTokenEntity) tokenEnhancer.enhance(token, authentication);
-
-      OAuth2AccessTokenEntity savedToken = saveAccessToken(enhancedToken);
-
-      if (savedToken.getRefreshToken() != null) {
-        tokenRepository.saveRefreshToken(savedToken.getRefreshToken());
-      }
-
-      return savedToken;
+      return (OAuth2AccessTokenEntity) tokenEnhancer.enhance(at, authentication);
     }
 
     throw new AuthenticationCredentialsNotFoundException("No authentication credentials found");
   }
-
 
   public OAuth2RefreshTokenEntity createRefreshToken(ClientDetailsEntity client,
       AuthenticationHolderEntity authHolder) {
@@ -293,8 +224,6 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
     refreshToken.setAuthenticationHolder(authHolder);
     refreshToken.setClient(client);
 
-    // save the token first so that we can set it to a member of the access token (NOTE: is this
-    // step necessary?)
     return tokenRepository.saveRefreshToken(refreshToken);
   }
 
@@ -336,11 +265,6 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
       throw new InvalidClientException("Client does not allow refreshing access token!");
     }
 
-    // clear out any access tokens
-    if (client.isClearAccessTokensOnRefresh()) {
-      tokenRepository.clearAccessTokensForRefreshToken(refreshToken);
-    }
-
     if (refreshToken.isExpired()) {
       tokenRepository.removeRefreshToken(refreshToken);
       throw new InvalidTokenException("Expired refresh token: " + refreshTokenValue);
@@ -360,7 +284,6 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
     if (authRequest.getScope() != null) {
       requestedScopes.addAll(authRequest.getScope());
     }
-
     requestedScopes.removeAll(reservedScopes);
 
     if (!requestedScopes.isEmpty()) {
@@ -397,10 +320,7 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
         authHolder.getAuthentication().getOAuth2Request().refresh(authRequest);
     OAuth2Authentication newOAuth2Authentication =
         new OAuth2Authentication(newOAuth2Request, authHolder.getUserAuth());
-    OAuth2AccessTokenEntity enhancedToken =
-        (OAuth2AccessTokenEntity) tokenEnhancer.enhance(token, newOAuth2Authentication);
-    tokenRepository.saveAccessToken(enhancedToken);
-    return enhancedToken;
+    return (OAuth2AccessTokenEntity) tokenEnhancer.enhance(token, newOAuth2Authentication);
   }
 
   private Date computeExpiration(ClientDetailsEntity client) {
@@ -420,10 +340,9 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
     OAuth2AccessTokenEntity accessToken = tokenRepository.getAccessTokenByValue(accessTokenValue);
 
     if (accessToken == null) {
-      throw new InvalidTokenException("Invalid access token: " + accessTokenValue);
-    } else {
-      return accessToken.getAuthenticationHolder().getAuthentication();
+      throw new InvalidTokenException("Invalid access token value");
     }
+    return accessToken.getAuthenticationHolder().getAuthentication();
   }
 
 
@@ -433,13 +352,13 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
   @Override
   public OAuth2AccessTokenEntity readAccessToken(String accessTokenValue)
       throws AuthenticationException {
-    OAuth2AccessTokenEntity accessToken = tokenRepository.getAccessTokenByValue(accessTokenValue);
-    if (accessToken == null) {
-      throw new InvalidTokenException(
-          "Access token for value " + accessTokenValue + " was not found");
-    } else {
-      return accessToken;
+
+    Optional<OAuth2AccessTokenEntity> accessToken =
+        Optional.ofNullable(tokenRepository.getAccessTokenByValue(accessTokenValue));
+    if (accessToken.isEmpty()) {
+      throw new InvalidTokenException("Access token not found");
     }
+    return accessToken.get();
   }
 
   /**
@@ -552,16 +471,8 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
   @Override
   @Transactional(value = "defaultTransactionManager")
   public OAuth2AccessTokenEntity saveAccessToken(OAuth2AccessTokenEntity accessToken) {
-    OAuth2AccessTokenEntity newToken = tokenRepository.saveAccessToken(accessToken);
-
-    // if the old token has any additional information for the return from the token endpoint, carry
-    // it through here after save
-    if (accessToken.getAdditionalInformation() != null
-        && !accessToken.getAdditionalInformation().isEmpty()) {
-      newToken.getAdditionalInformation().putAll(accessToken.getAdditionalInformation());
-    }
-
-    return newToken;
+    
+    return accessToken;
   }
 
   /*

@@ -78,6 +78,14 @@ public class SavedUserAuthentication implements Authentication {
     } else {
       setSourceClass(src.getClass().getName());
     }
+
+    if (src.getDetails() instanceof Map<?, ?>) {
+      Map<?, ?> details = (Map<?, ?>) src.getDetails();
+      Object acr = details.get("acr");
+      if (acr != null) {
+        additionalInfo.put("acr", acr.toString());
+      }
+    }
   }
 
   /**
@@ -188,7 +196,7 @@ public class SavedUserAuthentication implements Authentication {
   @ElementCollection(fetch = FetchType.EAGER)
   @MapKeyColumn(name = "info_key")
   @Column(name = "info_val", length = 256)
-  @CollectionTable(name = "saved_user_auth_info", joinColumns = @JoinColumn(name = "owner_id") )
+  @CollectionTable(name = "saved_user_auth_info", joinColumns = @JoinColumn(name = "owner_id"))
   /**
    * @return the additionalInfo
    */

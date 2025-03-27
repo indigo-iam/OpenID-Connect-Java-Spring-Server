@@ -32,6 +32,8 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -70,6 +72,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -95,15 +99,18 @@ import com.nimbusds.jwt.SignedJWT;
  */
 public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-	protected final static String REDIRECT_URI_SESION_VARIABLE = "redirect_uri";
+	protected final static String REDIRECT_URI_SESSION_VARIABLE = "redirect_uri";
 	protected final static String CODE_VERIFIER_SESSION_VARIABLE = "code_verifier";
 	protected final static String STATE_SESSION_VARIABLE = "state";
 	protected final static String NONCE_SESSION_VARIABLE = "nonce";
 	protected final static String ISSUER_SESSION_VARIABLE = "issuer";
 	protected final static String TARGET_SESSION_VARIABLE = "target";
+	protected final static String ACR_SESSION_VARIABLE = "acr_values";
 	protected final static int HTTP_SOCKET_TIMEOUT = 30000;
 
 	public final static String FILTER_PROCESSES_URL = "/openid_connect_login";
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
 	// Allow for time sync issues by having a window of X seconds.
 	private int timeSkewAllowance = 300;
@@ -262,7 +269,7 @@ public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFi
 				// otherwise our redirect URI is this current URL, with no query parameters
 				redirectUri = request.getRequestURL().toString();
 			}
-			session.setAttribute(REDIRECT_URI_SESION_VARIABLE, redirectUri);
+			session.setAttribute(REDIRECT_URI_SESSION_VARIABLE, redirectUri);
 
 			// this value comes back in the id token and is checked there
 			String nonce = createNonce(session);
@@ -271,6 +278,21 @@ public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFi
 			String state = createState(session);
 
 			Map<String, String> options = authOptions.getOptions(serverConfig, clientConfig, request);
+
+            // if the client requests MFA using claims request parameter, IAM transforms it into the acr_values one
+            if (request.getParameter("acr_values") != null) {
+              options.put("acr_values", request.getParameter("acr_values"));
+            } else if (request.getParameter("claims") != null) {
+              JsonNode claimsNode = objectMapper.readTree(request.getParameter("claims"));
+              JsonNode acrNodeValues = claimsNode.path("id_token").path("acr").path("values");
+              if (acrNodeValues.isArray() && acrNodeValues.size() > 0) {
+                String acrValues = StreamSupport.stream(acrNodeValues.spliterator(), false)
+                  .map(JsonNode::asText)
+                  .collect(Collectors.joining(" "));
+                session.setAttribute(ACR_SESSION_VARIABLE, acrValues);
+                options.put("acr_values", acrValues);
+              }
+            }
 
 			// if we're using PKCE, handle the challenge here
 			if (clientConfig.getCodeChallengeMethod() != null) {
@@ -287,8 +309,6 @@ public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFi
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
-
 				}
 			}
 
@@ -337,7 +357,7 @@ public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFi
 			form.add("code_verifier", codeVerifier);
 		}
 
-		String redirectUri = getStoredSessionString(session, REDIRECT_URI_SESION_VARIABLE);
+		String redirectUri = getStoredSessionString(session, REDIRECT_URI_SESSION_VARIABLE);
 		if (redirectUri != null) {
 			form.add("redirect_uri", redirectUri);
 		}

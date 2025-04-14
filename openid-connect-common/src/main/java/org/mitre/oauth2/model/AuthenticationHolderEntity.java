@@ -45,6 +45,8 @@ import javax.persistence.Transient;
 
 import org.mitre.oauth2.model.convert.SerializableStringConverter;
 import org.mitre.oauth2.model.convert.SimpleGrantedAuthorityStringConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
@@ -59,11 +61,13 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 			"a.id not in (select c.authenticationHolder.id from AuthorizationCodeEntity c)")
 })
 public class AuthenticationHolderEntity implements Serializable {
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(AuthenticationHolderEntity.class);
 
-
-  private static final long serialVersionUID = 1L;
-  public static final String QUERY_GET_UNUSED =
-      "AuthenticationHolderEntity.getUnusedAuthenticationHolders";
+	private static final long serialVersionUID = 1L;
+	public static final String QUERY_GET_UNUSED = "AuthenticationHolderEntity.getUnusedAuthenticationHolders";
 	public static final String QUERY_ALL = "AuthenticationHolderEntity.getAll";
 
 	private Long id;
@@ -322,7 +326,17 @@ public class AuthenticationHolderEntity implements Serializable {
 	 * @param requestParameters the requestParameters to set
 	 */
 	public void setRequestParameters(Map<String, String> requestParameters) {
-		this.requestParameters = requestParameters;
+		int maxLength = requestParameters.values().stream()
+				.mapToInt(String::length)
+				.max()
+				.orElse(0);
+
+		if (maxLength <= 2048) {
+			this.requestParameters = requestParameters;
+		} else {
+			logger.info("The length of one of the request parameters exceeds 2048 characters: " + maxLength);
+			this.requestParameters = new HashMap<>();
+		}
 	}
 
 

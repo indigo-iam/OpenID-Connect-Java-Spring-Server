@@ -2,7 +2,14 @@
 
 pipeline {
 
-  agent { label 'java11' }
+  agent { 
+    docker {
+      label 'docker'
+      image 'maven:3.9.6-eclipse-temurin-17'
+      args '--privileged'
+      reuseNode true
+    }
+  }
 
   options {
     timeout(time: 1, unit: 'HOURS')

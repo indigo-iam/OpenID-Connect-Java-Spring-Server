@@ -326,10 +326,11 @@ public class AuthenticationHolderEntity implements Serializable {
 	 * @param requestParameters the requestParameters to set
 	 */
 	public void setRequestParameters(Map<String, String> requestParameters) {
-		int maxLength = requestParameters.values().stream()
+		int maxLength = (requestParameters != null) ? requestParameters.values().stream()
 				.mapToInt(String::length)
 				.max()
-				.orElse(0);
+				.orElse(0)
+				: 0;
 
 		if (maxLength <= 2048) {
 			this.requestParameters = requestParameters;

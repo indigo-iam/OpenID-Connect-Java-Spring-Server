@@ -334,7 +334,7 @@ public class AuthenticationHolderEntity implements Serializable {
 		if (maxLength <= 2048) {
 			this.requestParameters = requestParameters;
 		} else {
-			logger.info("The length of one of the request parameters exceeds 2048 characters: " + maxLength);
+			logger.warn("The length of one of the request parameters exceeds 2048 characters: " + maxLength);
 			this.requestParameters = new HashMap<>();
 		}
 	}

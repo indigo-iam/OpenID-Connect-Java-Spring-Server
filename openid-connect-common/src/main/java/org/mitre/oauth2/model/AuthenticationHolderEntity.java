@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -45,8 +46,6 @@ import javax.persistence.Transient;
 
 import org.mitre.oauth2.model.convert.SerializableStringConverter;
 import org.mitre.oauth2.model.convert.SimpleGrantedAuthorityStringConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
@@ -61,10 +60,6 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 			"a.id not in (select c.authenticationHolder.id from AuthorizationCodeEntity c)")
 })
 public class AuthenticationHolderEntity implements Serializable {
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = LoggerFactory.getLogger(AuthenticationHolderEntity.class);
 
 	private static final long serialVersionUID = 1L;
 	public static final String QUERY_GET_UNUSED = "AuthenticationHolderEntity.getUnusedAuthenticationHolders";
@@ -326,20 +321,13 @@ public class AuthenticationHolderEntity implements Serializable {
 	 * @param requestParameters the requestParameters to set
 	 */
 	public void setRequestParameters(Map<String, String> requestParameters) {
-		int maxLength = (requestParameters != null) ? requestParameters.values().stream()
-				.mapToInt(String::length)
-				.max()
-				.orElse(0)
-				: 0;
-
-		if (maxLength <= 2048) {
-			this.requestParameters = requestParameters;
-		} else {
-			logger.warn("The length of one of the request parameters exceeds 2048 characters: " + maxLength);
+		if (requestParameters == null) {
 			this.requestParameters = new HashMap<>();
+			return;
 		}
+		this.requestParameters = requestParameters.entrySet().stream()
+				.filter(entry -> entry.getValue() != null && entry.getValue().length() <= 2048)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
-
-
 
 }

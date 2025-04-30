@@ -2,7 +2,14 @@
 
 pipeline {
 
-  agent { label 'java11' }
+  agent { 
+    docker {
+      label 'docker'
+      image 'maven:3.9.6-eclipse-temurin-17'
+      args '--privileged'
+      reuseNode true
+    }
+  }
 
   options {
     timeout(time: 1, unit: 'HOURS')
@@ -15,10 +22,14 @@ pipeline {
 
     stage('deploy') {
       steps {
-        sh "mvn -U -B clean package deploy"
+        configFileProvider([configFile(fileId: 'cnafsd-maven-settings', variable: 'MAVEN_SETTINGS')]) {
+          withCredentials([usernamePassword(credentialsId: 'jenkins-nexus', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            sh 'mvn -Dserver.username=$USERNAME -Dserver.password=$PASSWORD -s $MAVEN_SETTINGS clean deploy'
+          }
+        }
       }
     }
-    
+
     stage('result'){
       steps {
         script { 

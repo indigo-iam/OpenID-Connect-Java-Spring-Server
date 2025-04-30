@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -60,10 +61,8 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 })
 public class AuthenticationHolderEntity implements Serializable {
 
-
-  private static final long serialVersionUID = 1L;
-  public static final String QUERY_GET_UNUSED =
-      "AuthenticationHolderEntity.getUnusedAuthenticationHolders";
+	private static final long serialVersionUID = 1L;
+	public static final String QUERY_GET_UNUSED = "AuthenticationHolderEntity.getUnusedAuthenticationHolders";
 	public static final String QUERY_ALL = "AuthenticationHolderEntity.getAll";
 
 	private Long id;
@@ -322,9 +321,13 @@ public class AuthenticationHolderEntity implements Serializable {
 	 * @param requestParameters the requestParameters to set
 	 */
 	public void setRequestParameters(Map<String, String> requestParameters) {
-		this.requestParameters = requestParameters;
+		if (requestParameters == null) {
+			this.requestParameters = new HashMap<>();
+			return;
+		}
+		this.requestParameters = requestParameters.entrySet().stream()
+				.filter(entry -> entry.getValue() != null && entry.getValue().length() <= 2048)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
-
-
 
 }

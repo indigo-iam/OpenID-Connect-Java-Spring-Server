@@ -115,12 +115,12 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
 
   @Override
   public OAuth2AccessTokenEntity getAccessTokenById(Long id) {
-    return clearExpiredAccessToken(tokenRepository.getAccessTokenById(id));
+    return tokenRepository.getAccessTokenById(id);
   }
 
   @Override
   public OAuth2RefreshTokenEntity getRefreshTokenById(Long id) {
-    return clearExpiredRefreshToken(tokenRepository.getRefreshTokenById(id));
+    return tokenRepository.getRefreshTokenById(id);
   }
 
   /**
@@ -129,17 +129,15 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
    * @param token the token to check
    * @return null if the token is null or expired, the input token (unchanged) if it hasn't
    */
-  private OAuth2AccessTokenEntity clearExpiredAccessToken(OAuth2AccessTokenEntity token) {
+  protected OAuth2AccessTokenEntity clearExpiredAccessToken(OAuth2AccessTokenEntity token) {
     if (token == null) {
       return null;
-    } else if (token.isExpired()) {
-      // immediately revoke expired token
-      logger.debug("Clearing expired access token: " + token.getValue());
-      revokeAccessToken(token);
-      return null;
-    } else {
+    }
+    if (!token.isExpired()) {
       return token;
     }
+    revokeAccessToken(token);
+    return null;
   }
 
   /**
@@ -148,17 +146,15 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
    * @param token the token to check
    * @return null if the token is null or expired, the input token (unchanged) if it hasn't
    */
-  private OAuth2RefreshTokenEntity clearExpiredRefreshToken(OAuth2RefreshTokenEntity token) {
+  protected OAuth2RefreshTokenEntity clearExpiredRefreshToken(OAuth2RefreshTokenEntity token) {
     if (token == null) {
       return null;
-    } else if (token.isExpired()) {
-      // immediately revoke expired token
-      logger.debug("Clearing expired refresh token: " + token.getValue());
-      revokeRefreshToken(token);
-      return null;
-    } else {
+    }
+    if (!token.isExpired()) {
       return token;
     }
+    revokeRefreshToken(token);
+    return null;
   }
 
   @Override
@@ -224,15 +220,7 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
       scopes = scopeService.removeReservedScopes(scopes);
 
       token.setScope(scopeService.toStrings(scopes));
-
-      // make it always expire
-      if (client.getAccessTokenValiditySeconds() != null
-          && client.getAccessTokenValiditySeconds() > 0) {
-        Date expiration =
-            new Date(System.currentTimeMillis() + (client.getAccessTokenValiditySeconds() * 1000L));
-
-        token.setExpiration(expiration);
-      }
+      token.setExpiration(computeExpiration(client));
 
       // attach the authorization so that we can look it up later
       AuthenticationHolderEntity authHolder = new AuthenticationHolderEntity();
@@ -245,9 +233,8 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
       // offline scope and grant type differs from client credentials
       if (client.isAllowRefresh() && token.getScope().contains(SystemScopeService.OFFLINE_ACCESS)
           && !request.getGrantType().equals("client_credentials")) {
-        OAuth2RefreshTokenEntity savedRefreshToken = createRefreshToken(client, authHolder);
 
-        token.setRefreshToken(savedRefreshToken);
+        token.setRefreshToken(createRefreshToken(client, authHolder));
       }
 
       // Add approved site reference, if any
@@ -308,8 +295,7 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
 
     // save the token first so that we can set it to a member of the access token (NOTE: is this
     // step necessary?)
-    OAuth2RefreshTokenEntity savedRefreshToken = tokenRepository.saveRefreshToken(refreshToken);
-    return savedRefreshToken;
+    return tokenRepository.saveRefreshToken(refreshToken);
   }
 
   @Override
@@ -322,8 +308,7 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
       throw new InvalidTokenException("Invalid refresh token: " + refreshTokenValue);
     }
 
-    OAuth2RefreshTokenEntity refreshToken =
-        clearExpiredRefreshToken(tokenRepository.getRefreshTokenByValue(refreshTokenValue));
+    OAuth2RefreshTokenEntity refreshToken = tokenRepository.getRefreshTokenByValue(refreshTokenValue);
 
     if (refreshToken == null) {
       // throw an invalid token exception if we couldn't find the token
@@ -394,43 +379,45 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
     }
 
     token.setClient(client);
-
-    if (client.getAccessTokenValiditySeconds() != null
-        && client.getAccessTokenValiditySeconds() > 0) {
-      Date expiration =
-          new Date(System.currentTimeMillis() + (client.getAccessTokenValiditySeconds() * 1000L));
-      token.setExpiration(expiration);
-    }
+    token.setExpiration(computeExpiration(client));
 
     if (client.isReuseRefreshToken()) {
       // if the client re-uses refresh tokens, do that
       token.setRefreshToken(refreshToken);
     } else {
       // otherwise, make a new refresh token
-      OAuth2RefreshTokenEntity newRefresh = createRefreshToken(client, authHolder);
-      token.setRefreshToken(newRefresh);
-
+      token.setRefreshToken(createRefreshToken(client, authHolder));
       // clean up the old refresh token
       tokenRepository.removeRefreshToken(refreshToken);
     }
 
     token.setAuthenticationHolder(authHolder);
 
-    OAuth2Authentication authentication = authHolder.getAuthentication();
+    OAuth2Request newOAuth2Request =
+        authHolder.getAuthentication().getOAuth2Request().refresh(authRequest);
+    OAuth2Authentication newOAuth2Authentication =
+        new OAuth2Authentication(newOAuth2Request, authHolder.getUserAuth());
+    OAuth2AccessTokenEntity enhancedToken =
+        (OAuth2AccessTokenEntity) tokenEnhancer.enhance(token, newOAuth2Authentication);
+    tokenRepository.saveAccessToken(enhancedToken);
+    return enhancedToken;
+  }
 
-    tokenEnhancer.enhance(token, new OAuth2Authentication(
-        authentication.getOAuth2Request().refresh(authRequest), authHolder.getUserAuth()));
+  private Date computeExpiration(ClientDetailsEntity client) {
 
-    tokenRepository.saveAccessToken(token);
-
-    return token;
+    // default: 1h
+    int validityInSeconds = 3600;
+    if (client.getAccessTokenValiditySeconds() != null
+        && client.getAccessTokenValiditySeconds() > 0) {
+      validityInSeconds = client.getAccessTokenValiditySeconds().intValue();
+    }
+    return new Date(System.currentTimeMillis() + (validityInSeconds * 1000L));
   }
 
   @Override
   public OAuth2Authentication loadAuthentication(String accessTokenValue)
       throws AuthenticationException {
-    OAuth2AccessTokenEntity accessToken =
-        clearExpiredAccessToken(tokenRepository.getAccessTokenByValue(accessTokenValue));
+    OAuth2AccessTokenEntity accessToken = tokenRepository.getAccessTokenByValue(accessTokenValue);
 
     if (accessToken == null) {
       throw new InvalidTokenException("Invalid access token: " + accessTokenValue);
@@ -446,8 +433,7 @@ public class DefaultOAuth2ProviderTokenService implements OAuth2TokenEntityServi
   @Override
   public OAuth2AccessTokenEntity readAccessToken(String accessTokenValue)
       throws AuthenticationException {
-    OAuth2AccessTokenEntity accessToken =
-        clearExpiredAccessToken(tokenRepository.getAccessTokenByValue(accessTokenValue));
+    OAuth2AccessTokenEntity accessToken = tokenRepository.getAccessTokenByValue(accessTokenValue);
     if (accessToken == null) {
       throw new InvalidTokenException(
           "Access token for value " + accessTokenValue + " was not found");

@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -46,6 +44,8 @@ import javax.persistence.Transient;
 
 import org.mitre.oauth2.model.convert.SerializableStringConverter;
 import org.mitre.oauth2.model.convert.SimpleGrantedAuthorityStringConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
@@ -60,7 +60,7 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 			"a.id not in (select c.authenticationHolder.id from AuthorizationCodeEntity c)")
 })
 public class AuthenticationHolderEntity implements Serializable {
-
+	private static final Logger logger = LoggerFactory.getLogger(AuthenticationHolderEntity.class);
 	private static final long serialVersionUID = 1L;
 	public static final String QUERY_GET_UNUSED = "AuthenticationHolderEntity.getUnusedAuthenticationHolders";
 	public static final String QUERY_ALL = "AuthenticationHolderEntity.getAll";
@@ -321,13 +321,19 @@ public class AuthenticationHolderEntity implements Serializable {
 	 * @param requestParameters the requestParameters to set
 	 */
 	public void setRequestParameters(Map<String, String> requestParameters) {
+		this.requestParameters = new HashMap<>();
 		if (requestParameters == null) {
-			this.requestParameters = new HashMap<>();
-			return;
+		  return;
 		}
-		this.requestParameters = requestParameters.entrySet().stream()
-				.filter(entry -> entry.getValue() != null && entry.getValue().length() <= 2048)
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		requestParameters.forEach((k, v) -> {
+			if (v == null) {
+				logger.warn("The request parameter {} has a null value.", k);
+			} else if (v.length() > 2048) {
+				logger.warn("The length of the request parameter {} exceeds 2048 characters, with the value: {}...", k, v.substring(0, 20));
+			} else {
+				this.requestParameters.put(k, v);
+			}
+		});
 	}
 
 }

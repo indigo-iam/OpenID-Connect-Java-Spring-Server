@@ -322,19 +322,18 @@ public class AuthenticationHolderEntity implements Serializable {
 	 */
 	public void setRequestParameters(Map<String, String> requestParameters) {
 		this.requestParameters = new HashMap<>();
-		if (requestParameters != null) {
-			for (Map.Entry<String, String> entry : requestParameters.entrySet()) {
-				String value = entry.getValue();
-				if (value != null && value.length() <= 2048) {
-					this.requestParameters.put(entry.getKey(), value);
-				} else if (value == null) {
-					logger.warn("The request parameter " + entry.getKey() + " has a null value.");
-				} else {
-					logger.warn("The length of the request parameter " + entry.getKey()
-							+ " exceeds 2048 characters, with the value: " + value.substring(0, 20) + "...");
-				}
-			}
+		if (requestParameters == null) {
+		  return;
 		}
+		requestParameters.forEach((k, v) -> {
+			if (v == null) {
+				logger.warn("The request parameter {} has a null value.", k);
+			} else if (v.length() > 2048) {
+				logger.warn("The length of the request parameter {} exceeds 2048 characters, with the value: {}...", k, v.substring(0, 20));
+			} else {
+				this.requestParameters.put(k, v);
+			}
+		});
 	}
 
 }

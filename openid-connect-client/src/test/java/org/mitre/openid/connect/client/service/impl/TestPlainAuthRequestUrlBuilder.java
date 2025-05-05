@@ -17,7 +17,10 @@
  *******************************************************************************/
 package org.mitre.openid.connect.client.service.impl;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +29,10 @@ import org.mitre.openid.connect.config.ServerConfiguration;
 import org.mockito.Mockito;
 import org.springframework.security.authentication.AuthenticationServiceException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
@@ -42,8 +49,10 @@ public class TestPlainAuthRequestUrlBuilder {
 	// Test fixture:
 	ServerConfiguration serverConfig;
 	RegisteredClient clientConfig;
+	HttpServletRequest request;
 
 	private PlainAuthRequestUrlBuilder urlBuilder = new PlainAuthRequestUrlBuilder();
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Before
 	public void prepare() {
@@ -54,6 +63,8 @@ public class TestPlainAuthRequestUrlBuilder {
 		clientConfig = Mockito.mock(RegisteredClient.class);
 		Mockito.when(clientConfig.getClientId()).thenReturn("s6BhdRkqt3");
 		Mockito.when(clientConfig.getScope()).thenReturn(Sets.newHashSet("openid", "profile"));
+
+		request = Mockito.mock(HttpServletRequest.class);
 	}
 
 	@Test
@@ -104,5 +115,40 @@ public class TestPlainAuthRequestUrlBuilder {
 
 		urlBuilder.buildAuthRequestUrl(serverConfig, clientConfig, "example.com", "", "", options, null);
 	}
+
+    @Test
+    public void buildAuthRequestUrl_withAcr() throws JsonMappingException, JsonProcessingException {
+
+      String claimsJson =
+          "{ \"id_token\": { \"acr\": { \"values\": [\"myACR\", \"anotherACR\"] } } }";
+
+      Mockito.when(request.getParameter("claims")).thenReturn(claimsJson);
+
+      String expectedUrl =
+          "https://server.example.com/authorize?" +
+          "response_type=code" + "&client_id=s6BhdRkqt3" +
+          "&scope=openid+profile" +
+          "&redirect_uri=https%3A%2F%2Fclient.example.org%2F" +
+          "&nonce=34fasf3ds" +
+          "&state=af0ifjsldkj" +
+          "&foo=bar" +
+          "&acr_values=myACR+anotherACR";
+
+      Map<String, String> options = new HashMap<>();
+      options.put("foo", "bar");
+
+      ObjectNode claimsNode = (ObjectNode) objectMapper.readTree(request.getParameter("claims"));
+      ObjectNode acrJsonNode = (ObjectNode) claimsNode.path("id_token").path("acr");
+
+      if (acrJsonNode.has("values")) {
+          String acrValues = String.join(" ", objectMapper.convertValue(acrJsonNode.get("values"), String[].class));
+          options.put("acr_values", acrValues);
+      }
+
+      String actualUrl = urlBuilder.buildAuthRequestUrl(serverConfig, clientConfig,
+          "https://client.example.org/", "34fasf3ds", "af0ifjsldkj", options, null);
+
+      assertThat(actualUrl, equalTo(expectedUrl));
+    }
 
 }

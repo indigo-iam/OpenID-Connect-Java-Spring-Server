@@ -102,7 +102,7 @@ public class DefaultApprovedSiteService implements ApprovedSiteService {
 	@Transactional(value="defaultTransactionManager")
 	public ApprovedSite createApprovedSite(String clientId, String userId, Date timeoutDate, Set<String> allowedScopes) {
 
-		ApprovedSite as = approvedSiteRepository.save(new ApprovedSite());
+		ApprovedSite as = new ApprovedSite();
 
 		Date now = new Date();
 		as.setCreationDate(now);

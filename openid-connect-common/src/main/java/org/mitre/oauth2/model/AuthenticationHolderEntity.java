@@ -53,12 +53,11 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 @Entity
 @Table(name = "authentication_holder")
 @NamedQueries ({
-	@NamedQuery(name = AuthenticationHolderEntity.QUERY_ALL, query = "select a from AuthenticationHolderEntity a"),
-	@NamedQuery(name = AuthenticationHolderEntity.QUERY_GET_UNUSED, query = "SELECT a FROM AuthenticationHolderEntity a "
-	+ "LEFT JOIN OAuth2AccessTokenEntity t ON t.authenticationHolder.id = a.id "
-	+ "LEFT JOIN OAuth2RefreshTokenEntity r ON r.authenticationHolder.id = a.id "
-	+ "LEFT JOIN AuthorizationCodeEntity c ON c.authenticationHolder.id = a.id "
-	+ "WHERE t.authenticationHolder.id IS NULL AND r.authenticationHolder.id IS NULL AND c.authenticationHolder.id IS NULL")
+  @NamedQuery(name = AuthenticationHolderEntity.QUERY_ALL, query = "select a from AuthenticationHolderEntity a"),
+  @NamedQuery(name = AuthenticationHolderEntity.QUERY_GET_UNUSED, query = "select a from AuthenticationHolderEntity a where " +
+        "a.id not in (select t.authenticationHolder.id from OAuth2AccessTokenEntity t) and "
+        + "a.id not in (select r.authenticationHolder.id from OAuth2RefreshTokenEntity r) and "
+        + "a.id not in (select c.authenticationHolder.id from AuthorizationCodeEntity c)")
 })
 public class AuthenticationHolderEntity implements Serializable {
 	private static final Logger logger = LoggerFactory.getLogger(AuthenticationHolderEntity.class);

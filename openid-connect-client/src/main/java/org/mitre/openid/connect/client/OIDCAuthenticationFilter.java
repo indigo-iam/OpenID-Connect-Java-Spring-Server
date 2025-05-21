@@ -292,6 +292,8 @@ public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFi
                 session.setAttribute(ACR_SESSION_VARIABLE, acrValues);
                 options.put("acr_values", acrValues);
               }
+            } else {
+              options.put("acr_values", "https://refeds.org/profile/mfa");
             }
 
 			// if we're using PKCE, handle the challenge here

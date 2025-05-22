@@ -106,11 +106,11 @@ public class AuthorizationRequestFilter extends GenericFilterBean {
 
     Map<String, String> params = createRequestMap(request.getParameterMap());
 
-    /* throws:
-     * - IllegalArgumentException if the parameter is null
-     * - InvalidClientException if client is not found
-     */
-    ClientDetailsEntity client = clientService.loadClientByClientId(params.get(CLIENT_ID));
+    ClientDetailsEntity client = null;
+
+    if (params.get(CLIENT_ID) != null) {
+      client = clientService.loadClientByClientId(params.get(CLIENT_ID));
+    }
 
     // save the login hint to the session
     // but first check to see if the login hint makes any sense

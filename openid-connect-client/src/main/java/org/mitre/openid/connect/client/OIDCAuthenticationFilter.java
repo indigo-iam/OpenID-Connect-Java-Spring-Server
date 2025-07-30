@@ -29,6 +29,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -58,6 +59,7 @@ import org.mitre.openid.connect.client.service.impl.StaticAuthRequestOptionsServ
 import org.mitre.openid.connect.config.ServerConfiguration;
 import org.mitre.openid.connect.model.PendingOIDCAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -129,6 +131,9 @@ public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFi
 
   @Autowired(required = false)
   private HttpClient httpClient;
+
+  @Autowired
+  private Environment env;
 
   /*
    * Modular services to build out client filter.
@@ -301,7 +306,9 @@ public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFi
           options.put("acr_values", acrValues);
         }
       } else {
-        options.put("acr_values", "https://refeds.org/profile/mfa");
+        if (Arrays.asList(env.getActiveProfiles()).contains("mfa")) {
+          options.put("acr_values", "https://refeds.org/profile/mfa");
+        }
       }
 
       // if we're using PKCE, handle the challenge here

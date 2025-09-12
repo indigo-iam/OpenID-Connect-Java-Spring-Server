@@ -156,6 +156,7 @@ public class ClientDetailsEntity implements ClientDetails {
   private boolean clearAccessTokensOnRefresh = true; // do we clear access tokens on refresh?
   private Integer deviceCodeValiditySeconds; // timeout for device codes
   private transient ClientLastUsedEntity clientLastUsed; // last used info
+  private transient ClientExpirationEntity clientExpiration; // client expiration
   private boolean active = true;
   private Date statusChangedOn;
   private String statusChangedBy;
@@ -971,6 +972,22 @@ public class ClientDetailsEntity implements ClientDetails {
    */
   public void setClientLastUsed(ClientLastUsedEntity clientLastUsed) {
     this.clientLastUsed = clientLastUsed;
+  }
+
+  /**
+   * @return the clientExpiration entity
+   */
+  @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+  @PrimaryKeyJoinColumn
+  public ClientExpirationEntity getClientExpiration() {
+    return clientExpiration;
+  }
+
+  /**
+   * @param clientExpiration instance with the date of expiration of this client
+   */
+  public void setClientExpiration(ClientExpirationEntity clientExpiration) {
+    this.clientExpiration = clientExpiration;
   }
 
   /**

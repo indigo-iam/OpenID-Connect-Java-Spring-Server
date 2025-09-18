@@ -156,7 +156,7 @@ public class ClientDetailsEntity implements ClientDetails {
   private boolean clearAccessTokensOnRefresh = true; // do we clear access tokens on refresh?
   private Integer deviceCodeValiditySeconds; // timeout for device codes
   private transient ClientLastUsedEntity clientLastUsed; // last used info
-  private transient ClientExpirationEntity clientExpiration; // client expiration
+  private transient ClientFederationMetadataEntity clientFederationMetadata; // client federation metadata
   private boolean active = true;
   private Date statusChangedOn;
   private String statusChangedBy;
@@ -975,19 +975,20 @@ public class ClientDetailsEntity implements ClientDetails {
   }
 
   /**
-   * @return the clientExpiration entity
+   * @return the clientFederationMetadata entity
    */
   @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
   @PrimaryKeyJoinColumn
-  public ClientExpirationEntity getClientExpiration() {
-    return clientExpiration;
+  public ClientFederationMetadataEntity getFederationMetadata() {
+    return clientFederationMetadata;
   }
 
   /**
-   * @param clientExpiration instance with the date of expiration of this client
+   * @param clientFederationMetadata instance with the client federation metadata including
+   *        expiration and entityID
    */
-  public void setClientExpiration(ClientExpirationEntity clientExpiration) {
-    this.clientExpiration = clientExpiration;
+  public void setFederationMetadata(ClientFederationMetadataEntity clientFederationMetadata) {
+    this.clientFederationMetadata = clientFederationMetadata;
   }
 
   /**

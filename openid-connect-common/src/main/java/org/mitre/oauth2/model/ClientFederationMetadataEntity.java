@@ -27,8 +27,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "client_expiration")
-public class ClientExpirationEntity {
+@Table(name = "client_federation_metadata")
+public class ClientFederationMetadataEntity {
 
   @Id
   @Column(name = "client_details_id")
@@ -42,13 +42,17 @@ public class ClientExpirationEntity {
   @Column(name = "expiration", nullable = false)
   private LocalDate expiration;
 
-  public ClientExpirationEntity() {
+  @Column(name = "entity_id", nullable = false, unique = true)
+  private String entityId;
+
+  public ClientFederationMetadataEntity() {
     // empty constructor
   }
 
-  public ClientExpirationEntity(ClientDetailsEntity client, LocalDate expiration) {
+  public ClientFederationMetadataEntity(ClientDetailsEntity client, LocalDate expiration, String entityId) {
     this.client = client;
     this.expiration = expiration;
+    this.entityId = entityId;
   }
 
   public Long getId() {
@@ -73,5 +77,13 @@ public class ClientExpirationEntity {
 
   public void setExpiration(LocalDate expiration) {
     this.expiration = expiration;
+  }
+
+  public String getEntityId() {
+    return entityId;
+  }
+
+  public void setEntityId(String entityId) {
+    this.entityId = entityId;
   }
 }

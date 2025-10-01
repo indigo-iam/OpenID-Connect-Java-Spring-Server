@@ -15,7 +15,7 @@
  */
 package org.mitre.oauth2.model;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -27,8 +27,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "client_federation_metadata")
-public class ClientFederationMetadataEntity {
+@Table(name = "client_relying_party")
+public class ClientRelyingPartyEntity {
 
   @Id
   @Column(name = "client_details_id")
@@ -40,16 +40,16 @@ public class ClientFederationMetadataEntity {
   private ClientDetailsEntity client;
 
   @Column(name = "expiration", nullable = false)
-  private LocalDate expiration;
+  private Date expiration;
 
-  @Column(name = "entity_id", nullable = false, unique = true)
+  @Column(name = "entity_id", nullable = false)
   private String entityId;
 
-  public ClientFederationMetadataEntity() {
+  public ClientRelyingPartyEntity() {
     // empty constructor
   }
 
-  public ClientFederationMetadataEntity(ClientDetailsEntity client, LocalDate expiration, String entityId) {
+  public ClientRelyingPartyEntity(ClientDetailsEntity client, Date expiration, String entityId) {
     this.client = client;
     this.expiration = expiration;
     this.entityId = entityId;
@@ -71,11 +71,11 @@ public class ClientFederationMetadataEntity {
     this.client = client;
   }
 
-  public LocalDate getExpiration() {
+  public Date getExpiration() {
     return expiration;
   }
 
-  public void setExpiration(LocalDate expiration) {
+  public void setExpiration(Date expiration) {
     this.expiration = expiration;
   }
 

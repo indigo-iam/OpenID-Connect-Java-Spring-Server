@@ -975,7 +975,7 @@ public class ClientDetailsEntity implements ClientDetails {
   }
 
   /**
-   * @return the clientFederationMetadata entity
+   * @return the clientRelyingParty entity
    */
   @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
   @PrimaryKeyJoinColumn
@@ -984,8 +984,7 @@ public class ClientDetailsEntity implements ClientDetails {
   }
 
   /**
-   * @param clientFederationMetadata instance with the client federation metadata including
-   *        expiration and entityID
+   * @param clientRelyingParty instance with the relying party expiration and entityID
    */
   public void setClientRelyingParty(ClientRelyingPartyEntity clientRelyingParty) {
     this.clientRelyingParty = clientRelyingParty;

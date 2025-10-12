@@ -156,6 +156,7 @@ public class ClientDetailsEntity implements ClientDetails {
   private boolean clearAccessTokensOnRefresh = true; // do we clear access tokens on refresh?
   private Integer deviceCodeValiditySeconds; // timeout for device codes
   private transient ClientLastUsedEntity clientLastUsed; // last used info
+  private transient ClientRelyingPartyEntity clientRelyingParty; // relying party info (entity_id, expiration)
   private boolean active = true;
   private Date statusChangedOn;
   private String statusChangedBy;
@@ -971,6 +972,22 @@ public class ClientDetailsEntity implements ClientDetails {
    */
   public void setClientLastUsed(ClientLastUsedEntity clientLastUsed) {
     this.clientLastUsed = clientLastUsed;
+  }
+
+  /**
+   * @return the clientRelyingParty entity
+   */
+  @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+  @PrimaryKeyJoinColumn
+  public ClientRelyingPartyEntity getClientRelyingParty() {
+    return clientRelyingParty;
+  }
+
+  /**
+   * @param clientRelyingParty instance with the relying party expiration and entityID
+   */
+  public void setClientRelyingParty(ClientRelyingPartyEntity clientRelyingParty) {
+    this.clientRelyingParty = clientRelyingParty;
   }
 
   /**

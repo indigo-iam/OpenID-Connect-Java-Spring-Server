@@ -1014,7 +1014,7 @@ public class ClientDetailsEntity implements ClientDetails {
    */
   @Basic
   @Column(name = "upScopingEnabled")
-  public boolean isUpScopingAllowed() {
+  public boolean isUpScopingEnabled() {
     return upScopingEnabled;
   }
 
@@ -1023,7 +1023,7 @@ public class ClientDetailsEntity implements ClientDetails {
    * @param upScopingEnabled the upScopingEnabled to set
    */
 
-  public void setUpScopingAllowed(boolean upScopingEnabled) {
+  public void setUpScopingEnabled(boolean upScopingEnabled) {
     this.upScopingEnabled = upScopingEnabled;
   }
 

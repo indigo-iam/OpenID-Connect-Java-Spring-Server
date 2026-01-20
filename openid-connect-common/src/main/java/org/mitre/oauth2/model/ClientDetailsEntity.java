@@ -156,10 +156,12 @@ public class ClientDetailsEntity implements ClientDetails {
   private boolean clearAccessTokensOnRefresh = true; // do we clear access tokens on refresh?
   private Integer deviceCodeValiditySeconds; // timeout for device codes
   private transient ClientLastUsedEntity clientLastUsed; // last used info
-  private transient ClientRelyingPartyEntity clientRelyingParty; // relying party info (entity_id, expiration)
+  private transient ClientRelyingPartyEntity clientRelyingParty; // relying party info (entity_id,
+                                                                 // expiration)
   private boolean active = true;
   private Date statusChangedOn;
   private String statusChangedBy;
+  private boolean upScopingEnabled = true; // if upscoping should be allowed
 
   /** fields for UMA */
   private Set<String> claimsRedirectUris;
@@ -1004,6 +1006,25 @@ public class ClientDetailsEntity implements ClientDetails {
    */
   public void setActive(boolean active) {
     this.active = active;
+  }
+
+  /**
+   * 
+   * @return the upScopingEnabled
+   */
+  @Basic
+  @Column(name = "upScopingEnabled")
+  public boolean isUpScopingEnabled() {
+    return upScopingEnabled;
+  }
+
+  /**
+   * 
+   * @param upScopingEnabled the upScopingEnabled to set
+   */
+
+  public void setUpScopingEnabled(boolean upScopingEnabled) {
+    this.upScopingEnabled = upScopingEnabled;
   }
 
   /**

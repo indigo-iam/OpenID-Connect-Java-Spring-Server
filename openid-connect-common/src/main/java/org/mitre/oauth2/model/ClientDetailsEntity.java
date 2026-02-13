@@ -1013,7 +1013,7 @@ public class ClientDetailsEntity implements ClientDetails {
    * @return the upScopingEnabled
    */
   @Basic
-  @Column(name = "upScopingEnabled")
+  @Column(name = "up_scoping_enabled")
   public boolean isUpScopingEnabled() {
     return upScopingEnabled;
   }

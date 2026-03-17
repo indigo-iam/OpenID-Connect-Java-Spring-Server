@@ -157,7 +157,7 @@ public class ClientDetailsEntity implements ClientDetails {
   private Integer deviceCodeValiditySeconds; // timeout for device codes
   private transient ClientLastUsedEntity clientLastUsed; // last used info
   private transient ClientRelyingPartyEntity clientRelyingParty; // relying party info (entity_id,
-                                                                 // expiration)
+                                                                 // expiration, client_type)
   private boolean active = true;
   private Date statusChangedOn;
   private String statusChangedBy;

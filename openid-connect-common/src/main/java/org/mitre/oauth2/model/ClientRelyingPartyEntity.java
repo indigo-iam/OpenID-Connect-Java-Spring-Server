@@ -20,6 +20,8 @@ import java.util.Date;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapsId;
@@ -29,6 +31,10 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "client_relying_party")
 public class ClientRelyingPartyEntity {
+
+  public enum ClientType {
+    INTERNAL, EXTERNAL
+  }
 
   @Id
   @Column(name = "client_details_id")
@@ -45,14 +51,20 @@ public class ClientRelyingPartyEntity {
   @Column(name = "entity_id", nullable = false)
   private String entityId;
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "client_type", nullable = false)
+  private ClientType clientType;
+
   public ClientRelyingPartyEntity() {
     // empty constructor
   }
 
-  public ClientRelyingPartyEntity(ClientDetailsEntity client, Date expiration, String entityId) {
+  public ClientRelyingPartyEntity(ClientDetailsEntity client, Date expiration, String entityId,
+      ClientType clientType) {
     this.client = client;
     this.expiration = expiration;
     this.entityId = entityId;
+    this.clientType = clientType;
   }
 
   public Long getId() {
@@ -85,5 +97,13 @@ public class ClientRelyingPartyEntity {
 
   public void setEntityId(String entityId) {
     this.entityId = entityId;
+  }
+
+  public ClientType getClientType() {
+    return clientType;
+  }
+
+  public void setClientType(ClientType clientType) {
+    this.clientType = clientType;
   }
 }

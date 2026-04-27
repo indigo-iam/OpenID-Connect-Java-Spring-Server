@@ -195,7 +195,7 @@ public class SavedUserAuthentication implements Authentication {
 
   @ElementCollection(fetch = FetchType.EAGER)
   @MapKeyColumn(name = "info_key")
-  @Column(name = "info_val", length = 256)
+  @Column(name = "info_val", length = 512)
   @CollectionTable(name = "saved_user_auth_info", joinColumns = @JoinColumn(name = "owner_id"))
   /**
    * @return the additionalInfo

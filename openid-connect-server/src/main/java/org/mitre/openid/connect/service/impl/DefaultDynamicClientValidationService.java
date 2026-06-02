@@ -42,6 +42,7 @@ import static org.mitre.oauth2.model.RegisteredClientFields.USERINFO_SIGNED_RESP
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.mitre.jwt.assertion.AssertionValidator;
 import org.mitre.oauth2.model.ClientDetailsEntity;
@@ -124,8 +125,9 @@ public class DefaultDynamicClientValidationService implements DynamicClientValid
     Set<SystemScope> requestedScopes = scopeService.fromStrings(newClient.getScope());
 
     // the scopes that the client can have must be a subset of the dynamically allowed scopes
-    Set<SystemScope> allowedScopes =
-        scopeService.removeRestrictedAndReservedScopes(requestedScopes);
+    Set<SystemScope> allowedScopes = requestedScopes.stream()
+      .filter(s -> !s.isRestricted() && !SystemScopeService.reservedValues.contains(s.getValue()))
+      .collect(Collectors.toSet());
 
     // if the client didn't ask for any, give them the defaults
     if (allowedScopes == null || allowedScopes.isEmpty()) {

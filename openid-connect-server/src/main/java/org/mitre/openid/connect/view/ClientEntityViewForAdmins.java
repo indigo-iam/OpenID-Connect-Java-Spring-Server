@@ -40,34 +40,23 @@ import com.google.gson.FieldAttributes;
 @Component(ClientEntityViewForAdmins.VIEWNAME)
 public class ClientEntityViewForAdmins extends AbstractClientEntityView {
 
-	public static final String VIEWNAME = "clientEntityViewAdmins";
-	private Set<String> blacklistedFields = ImmutableSet.of("additionalInformation");
+  public static final String VIEWNAME = "clientEntityViewAdmins";
+  private Set<String> blacklistedFields = ImmutableSet.of("additionalInformation", "client_secret");
 
-	/**
-	 * @return
-	 */
-	@Override
-	protected ExclusionStrategy getExclusionStrategy() {
-		return new ExclusionStrategy() {
+  @Override
+  protected ExclusionStrategy getExclusionStrategy() {
+    return new ExclusionStrategy() {
 
-			@Override
-			public boolean shouldSkipField(FieldAttributes f) {
-				if (blacklistedFields.contains(f.getName())) {
-					return true;
-				} else {
-					return false;
-				}
-			}
+      @Override
+      public boolean shouldSkipField(FieldAttributes f) {
+        return blacklistedFields.contains(f.getName());
+      }
 
-			@Override
-			public boolean shouldSkipClass(Class<?> clazz) {
-				// skip the JPA binding wrapper
-				if (clazz.equals(BeanPropertyBindingResult.class)) {
-					return true;
-				}
-				return false;
-			}
+      @Override
+      public boolean shouldSkipClass(Class<?> clazz) {
+        return clazz.equals(BeanPropertyBindingResult.class);
+      }
 
-		};
-	}
+    };
+  }
 }

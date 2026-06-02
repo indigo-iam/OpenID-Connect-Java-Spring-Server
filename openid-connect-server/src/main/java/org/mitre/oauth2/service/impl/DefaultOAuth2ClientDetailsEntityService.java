@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.HttpClient;
@@ -171,9 +172,7 @@ public class DefaultOAuth2ClientDetailsEntityService implements ClientDetailsEnt
 	private void ensureNoReservedScopes(ClientDetailsEntity client) {
 		// make sure a client doesn't get any special system scopes
 		Set<SystemScope> requestedScope = scopeService.fromStrings(client.getScope());
-
-		requestedScope = scopeService.removeReservedScopes(requestedScope);
-
+		requestedScope = requestedScope.stream().filter(s -> !SystemScopeService.reservedValues.contains(s)).collect(Collectors.toSet());
 		client.setScope(scopeService.toStrings(requestedScope));
 	}
 

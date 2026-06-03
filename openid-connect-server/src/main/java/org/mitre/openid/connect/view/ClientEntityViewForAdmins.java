@@ -41,7 +41,7 @@ import com.google.gson.FieldAttributes;
 public class ClientEntityViewForAdmins extends AbstractClientEntityView {
 
   public static final String VIEWNAME = "clientEntityViewAdmins";
-  private Set<String> blacklistedFields = ImmutableSet.of("additionalInformation", "client_secret");
+  private Set<String> blacklistedFields = ImmutableSet.of("additionalInformation", "clientSecret");
 
   @Override
   protected ExclusionStrategy getExclusionStrategy() {

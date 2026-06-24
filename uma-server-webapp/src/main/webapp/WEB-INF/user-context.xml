@@ -53,12 +53,6 @@
 		<security:authentication-provider ref="externalAuthenticationProvider" />
 	</security:authentication-manager>
 
-	<bean id="externalAuthenticationProvider" class="org.mitre.openid.connect.client.OIDCAuthenticationProvider">
-		<property name="authoritiesMapper">
-			<bean class="org.mitre.uma.util.ExternalLoginAuthoritiesMapper" />
-		</property>
-	</bean>
-
 	<bean id="externalAuthenticationFilter" class="org.mitre.openid.connect.client.OIDCAuthenticationFilter">
 		<property name="authenticationManager" ref="externalAuthenticationManager" />
 

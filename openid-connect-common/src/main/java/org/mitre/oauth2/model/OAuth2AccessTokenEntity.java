@@ -21,10 +21,12 @@
 package org.mitre.oauth2.model;
 
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -40,8 +42,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -62,291 +62,271 @@ import com.nimbusds.jwt.JWT;
  * @author jricher
  *
  */
+@SuppressWarnings("deprecation")
 @Entity
 @Table(name = "access_token")
-@NamedQueries({
-	@NamedQuery(name = OAuth2AccessTokenEntity.QUERY_ALL, query = "select a from OAuth2AccessTokenEntity a"),
-	@NamedQuery(name = OAuth2AccessTokenEntity.QUERY_EXPIRED_BY_DATE, query = "select a from OAuth2AccessTokenEntity a where a.expiration <= :" + OAuth2AccessTokenEntity.PARAM_DATE),
-	@NamedQuery(name = OAuth2AccessTokenEntity.QUERY_BY_REFRESH_TOKEN, query = "select a from OAuth2AccessTokenEntity a where a.refreshToken = :" + OAuth2AccessTokenEntity.PARAM_REFRESH_TOKEN),
-	@NamedQuery(name = OAuth2AccessTokenEntity.QUERY_BY_CLIENT, query = "select a from OAuth2AccessTokenEntity a where a.client = :" + OAuth2AccessTokenEntity.PARAM_CLIENT),
-	@NamedQuery(name = OAuth2AccessTokenEntity.QUERY_BY_TOKEN_VALUE_HASH, query = "select a from OAuth2AccessTokenEntity a where a.tokenValueHash = :" + OAuth2AccessTokenEntity.PARAM_TOKEN_VALUE_HASH),
-	@NamedQuery(name = OAuth2AccessTokenEntity.QUERY_BY_APPROVED_SITE, query = "select a from OAuth2AccessTokenEntity a where a.approvedSite = :" + OAuth2AccessTokenEntity.PARAM_APPROVED_SITE),
-	@NamedQuery(name = OAuth2AccessTokenEntity.QUERY_BY_RESOURCE_SET, query = "select a from OAuth2AccessTokenEntity a join a.permissions p where p.resourceSet.id = :" + OAuth2AccessTokenEntity.PARAM_RESOURCE_SET_ID),
-	@NamedQuery(name = OAuth2AccessTokenEntity.QUERY_BY_NAME, query = "select r from OAuth2AccessTokenEntity r where r.authenticationHolder.userAuth.name = :" + OAuth2AccessTokenEntity.PARAM_NAME),
-	@NamedQuery(name = OAuth2AccessTokenEntity.DELETE_BY_REFRESH_TOKEN, query = "delete from OAuth2AccessTokenEntity a where a.refreshToken = :" + OAuth2AccessTokenEntity.PARAM_REFRESH_TOKEN)
-})
-@com.fasterxml.jackson.databind.annotation.JsonSerialize(using = OAuth2AccessTokenJackson2Serializer.class)
-@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = OAuth2AccessTokenJackson2Deserializer.class)
+@com.fasterxml.jackson.databind.annotation.JsonSerialize(
+    using = OAuth2AccessTokenJackson2Serializer.class)
+@com.fasterxml.jackson.databind.annotation.JsonDeserialize(
+    using = OAuth2AccessTokenJackson2Deserializer.class)
 public class OAuth2AccessTokenEntity implements OAuth2AccessToken {
 
-	public static final String QUERY_BY_APPROVED_SITE = "OAuth2AccessTokenEntity.getByApprovedSite";
-	public static final String QUERY_BY_TOKEN_VALUE_HASH = "OAuth2AccessTokenEntity.getByTokenValue";
-	public static final String QUERY_BY_CLIENT = "OAuth2AccessTokenEntity.getByClient";
-	public static final String QUERY_BY_REFRESH_TOKEN = "OAuth2AccessTokenEntity.getByRefreshToken";
-	public static final String QUERY_EXPIRED_BY_DATE = "OAuth2AccessTokenEntity.getAllExpiredByDate";
-	public static final String QUERY_ALL = "OAuth2AccessTokenEntity.getAll";
-	public static final String QUERY_BY_RESOURCE_SET = "OAuth2AccessTokenEntity.getByResourceSet";
-	public static final String QUERY_BY_NAME = "OAuth2AccessTokenEntity.getByName";
-	public static final String DELETE_BY_REFRESH_TOKEN = "OAuth2AccessTokenEntity.deleteByRefreshToken";
+  public static final String ID_TOKEN_FIELD_NAME = "id_token";
 
-	public static final String PARAM_TOKEN_VALUE_HASH = "tokenValueHash";
-	public static final String PARAM_CLIENT = "client";
-	public static final String PARAM_REFRESH_TOKEN = "refreshToken";
-	public static final String PARAM_DATE = "date";
-	public static final String PARAM_RESOURCE_SET_ID = "rsid";
-	public static final String PARAM_APPROVED_SITE = "approvedSite";
-	public static final String PARAM_NAME = "name";
+  private Long id;
 
-	public static final String ID_TOKEN_FIELD_NAME = "id_token";
+  private ClientDetailsEntity client;
 
-	private Long id;
+  private AuthenticationHolderEntity authenticationHolder;
 
-	private ClientDetailsEntity client;
+  private JWT jwtValue;
 
-	private AuthenticationHolderEntity authenticationHolder; // the authentication that made this access
+  private String tokenValueHash;
 
-	private JWT jwtValue; // JWT-encoded access token value
+  private Date expiration;
 
-	private String tokenValueHash; // hash of access token value
+  private String tokenType = OAuth2AccessToken.BEARER_TYPE;
 
-	private Date expiration;
+  private OAuth2RefreshTokenEntity refreshToken;
 
-	private String tokenType = OAuth2AccessToken.BEARER_TYPE;
+  private Set<String> scope;
 
-	private OAuth2RefreshTokenEntity refreshToken;
+  private Set<Permission> permissions;
 
-	private Set<String> scope;
+  private ApprovedSite approvedSite;
 
-	private Set<Permission> permissions;
+  private Map<String, Object> additionalInformation = new HashMap<>();
 
-	private ApprovedSite approvedSite;
+  /**
+   * Create a new, blank access token
+   */
+  public OAuth2AccessTokenEntity() {
 
-	private Map<String, Object> additionalInformation = new HashMap<>(); // ephemeral map of items to be added to the OAuth token response
+  }
 
-	/**
-	 * Create a new, blank access token
-	 */
-	public OAuth2AccessTokenEntity() {
+  /**
+   * @return the id
+   */
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  public Long getId() {
+    return id;
+  }
 
-	}
+  /**
+   * @param id the id to set
+   */
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-	/**
-	 * @return the id
-	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	public Long getId() {
-		return id;
-	}
+  /**
+   * Get all additional information to be sent to the serializer as part of the token response. This
+   * map is not persisted to the database.
+   */
+  @Override
+  @Transient
+  public Map<String, Object> getAdditionalInformation() {
+    return additionalInformation;
+  }
 
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
+  /**
+   * The authentication in place when this token was created.
+   * 
+   * @return the authentication
+   */
+  @ManyToOne
+  @JoinColumn(name = "auth_holder_id")
+  public AuthenticationHolderEntity getAuthenticationHolder() {
+    return authenticationHolder;
+  }
 
-	/**
-	 * Get all additional information to be sent to the serializer as part of the token response.
-	 * This map is not persisted to the database.
-	 */
-	@Override
-	@Transient
-	public Map<String, Object> getAdditionalInformation() {
-		return additionalInformation;
-	}
+  /**
+   * @param authentication the authentication to set
+   */
+  public void setAuthenticationHolder(AuthenticationHolderEntity authenticationHolder) {
+    this.authenticationHolder = authenticationHolder;
+  }
 
-	/**
-	 * The authentication in place when this token was created.
-	 * @return the authentication
-	 */
-	@ManyToOne
-	@JoinColumn(name = "auth_holder_id")
-	public AuthenticationHolderEntity getAuthenticationHolder() {
-		return authenticationHolder;
-	}
+  /**
+   * @return the client
+   */
+  @ManyToOne
+  @JoinColumn(name = "client_id")
+  public ClientDetailsEntity getClient() {
+    return client;
+  }
 
-	/**
-	 * @param authentication the authentication to set
-	 */
-	public void setAuthenticationHolder(AuthenticationHolderEntity authenticationHolder) {
-		this.authenticationHolder = authenticationHolder;
-	}
+  /**
+   * @param client the client to set
+   */
+  public void setClient(ClientDetailsEntity client) {
+    this.client = client;
+  }
 
-	/**
-	 * @return the client
-	 */
-	@ManyToOne
-	@JoinColumn(name = "client_id")
-	public ClientDetailsEntity getClient() {
-		return client;
-	}
+  /**
+   * Get the string-encoded value of this access token.
+   */
+  @Override
+  @Transient
+  public String getValue() {
+    return jwtValue.serialize();
+  }
 
-	/**
-	 * @param client the client to set
-	 */
-	public void setClient(ClientDetailsEntity client) {
-		this.client = client;
-	}
+  @Override
+  @Basic
+  @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+  @Column(name = "expiration")
+  public Date getExpiration() {
+    return expiration;
+  }
 
-	/**
-	 * Get the string-encoded value of this access token.
-	 */
-	@Override
-	@Transient
-	public String getValue() {
-		return jwtValue.serialize();
-	}
+  public void setExpiration(Date expiration) {
+    this.expiration = expiration;
+  }
 
-	@Override
-	@Basic
-	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
-	@Column(name = "expiration")
-	public Date getExpiration() {
-		return expiration;
-	}
+  @Override
+  @Basic
+  @Column(name = "token_type")
+  public String getTokenType() {
+    return tokenType;
+  }
 
-	public void setExpiration(Date expiration) {
-		this.expiration = expiration;
-	}
+  public void setTokenType(String tokenType) {
+    this.tokenType = tokenType;
+  }
 
-	@Override
-	@Basic
-	@Column(name="token_type")
-	public String getTokenType() {
-		return tokenType;
-	}
+  @Override
+  @ManyToOne
+  @JoinColumn(name = "refresh_token_id")
+  public OAuth2RefreshTokenEntity getRefreshToken() {
+    return refreshToken;
+  }
 
-	public void setTokenType(String tokenType) {
-		this.tokenType = tokenType;
-	}
+  public void setRefreshToken(OAuth2RefreshTokenEntity refreshToken) {
+    this.refreshToken = refreshToken;
+  }
 
-	@Override
-	@ManyToOne
-	@JoinColumn(name="refresh_token_id")
-	public OAuth2RefreshTokenEntity getRefreshToken() {
-		return refreshToken;
-	}
+  public void setRefreshToken(OAuth2RefreshToken refreshToken) {
+    if (!(refreshToken instanceof OAuth2RefreshTokenEntity)) {
+      throw new IllegalArgumentException("Not a storable refresh token entity!");
+    }
+    // force a pass through to the entity version
+    setRefreshToken((OAuth2RefreshTokenEntity) refreshToken);
+  }
 
-	public void setRefreshToken(OAuth2RefreshTokenEntity refreshToken) {
-		this.refreshToken = refreshToken;
-	}
+  @Override
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(joinColumns = @JoinColumn(name = "owner_id"), name = "token_scope")
+  public Set<String> getScope() {
+    return scope;
+  }
 
-	public void setRefreshToken(OAuth2RefreshToken refreshToken) {
-		if (!(refreshToken instanceof OAuth2RefreshTokenEntity)) {
-			throw new IllegalArgumentException("Not a storable refresh token entity!");
-		}
-		// force a pass through to the entity version
-		setRefreshToken((OAuth2RefreshTokenEntity)refreshToken);
-	}
+  public void setScope(Set<String> scope) {
+    this.scope = scope;
+  }
 
-	@Override
-	@ElementCollection(fetch=FetchType.EAGER)
-	@CollectionTable(
-			joinColumns=@JoinColumn(name="owner_id"),
-			name="token_scope"
-			)
-	public Set<String> getScope() {
-		return scope;
-	}
+  @Override
+  @Transient
+  public boolean isExpired() {
+    return getExpiration() == null ? false : System.currentTimeMillis() > getExpiration().getTime();
+  }
 
-	public void setScope(Set<String> scope) {
-		this.scope = scope;
-	}
+  /**
+   * @return the jwtValue
+   */
+  @Basic
+  @Column(name = "token_value")
+  @Convert(converter = JWTStringConverter.class)
+  public JWT getJwt() {
+    return jwtValue;
+  }
 
-	@Override
-	@Transient
-	public boolean isExpired() {
-		return getExpiration() == null ? false : System.currentTimeMillis() > getExpiration().getTime();
-	}
+  /**
+   * @param jwtValue the jwtValue to set
+   */
+  public void setJwt(JWT jwt) {
+    this.jwtValue = jwt;
+  }
 
-	/**
-	 * @return the jwtValue
-	 */
-	@Basic
-	@Column(name="token_value")
-	@Convert(converter = JWTStringConverter.class)
-	public JWT getJwt() {
-		return jwtValue;
-	}
+  /**
+   * @return the tokenValueHash
+   */
+  @Basic
+  @Column(name = "token_value_hash", length = 64)
+  public String getTokenValueHash() {
+    return tokenValueHash;
+  }
 
-	/**
-	 * @param jwtValue the jwtValue to set
-	 */
-	public void setJwt(JWT jwt) {
-		this.jwtValue = jwt;
-	}
+  public void setTokenValueHash(String hash) {
+    this.tokenValueHash = hash;
+  }
 
-	/**
-	 * @return the tokenValueHash
-	 */
-	@Basic
-	@Column(name = "token_value_hash", length = 64)
-	public String getTokenValueHash() {
-		return tokenValueHash;
-	}
+  @Override
+  @Transient
+  public int getExpiresIn() {
 
-	public void setTokenValueHash(String hash) {
-		this.tokenValueHash = hash;
-	}
+    if (getExpiration() == null) {
+      return -1; // no expiration time
+    } else {
+      int secondsRemaining =
+          (int) ((getExpiration().getTime() - System.currentTimeMillis()) / 1000);
+      if (isExpired()) {
+        return 0; // has an expiration time and expired
+      } else { // has an expiration time and not expired
+        return secondsRemaining;
+      }
+    }
+  }
 
-	@Override
-	@Transient
-	public int getExpiresIn() {
+  /**
+   * @return the permissions
+   */
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JoinTable(name = "access_token_permissions", joinColumns = @JoinColumn(name = "access_token_id"),
+      inverseJoinColumns = @JoinColumn(name = "permission_id"))
+  public Set<Permission> getPermissions() {
+    return permissions;
+  }
 
-		if (getExpiration() == null) {
-			return -1; // no expiration time
-		} else {
-			int secondsRemaining = (int) ((getExpiration().getTime() - System.currentTimeMillis()) / 1000);
-			if (isExpired()) {
-				return 0; // has an expiration time and expired
-			} else { // has an expiration time and not expired
-				return secondsRemaining;
-			}
-		}
-	}
+  /**
+   * @param permissions the permissions to set
+   */
+  public void setPermissions(Set<Permission> permissions) {
+    this.permissions = permissions;
+  }
 
-	/**
-	 * @return the permissions
-	 */
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinTable(
-			name = "access_token_permissions",
-			joinColumns = @JoinColumn(name = "access_token_id"),
-			inverseJoinColumns = @JoinColumn(name = "permission_id")
-			)
-	public Set<Permission> getPermissions() {
-		return permissions;
-	}
+  @ManyToOne
+  @JoinColumn(name = "approved_site_id")
+  public ApprovedSite getApprovedSite() {
+    return approvedSite;
+  }
 
-	/**
-	 * @param permissions the permissions to set
-	 */
-	public void setPermissions(Set<Permission> permissions) {
-		this.permissions = permissions;
-	}
+  public void setApprovedSite(ApprovedSite approvedSite) {
+    this.approvedSite = approvedSite;
+  }
 
-	@ManyToOne
-	@JoinColumn(name="approved_site_id")
-	public ApprovedSite getApprovedSite() {
-		return approvedSite;
-	}
+  /**
+   * Add the ID Token to the additionalInformation map for a token response.
+   * 
+   * @param idToken
+   */
+  @Transient
+  public void setIdToken(JWT idToken) {
+    if (idToken != null) {
+      additionalInformation.put(ID_TOKEN_FIELD_NAME, idToken.serialize());
+    }
+  }
 
-	public void setApprovedSite(ApprovedSite approvedSite) {
-		this.approvedSite = approvedSite;
-	}
-
-	/**
-	 * Add the ID Token to the additionalInformation map for a token response.
-	 * @param idToken
-	 */
-	@Transient
-	public void setIdToken(JWT idToken) {
-		if (idToken != null) {
-			additionalInformation.put(ID_TOKEN_FIELD_NAME, idToken.serialize());
-		}
-	}
+  @Transient
+  public Set<String> getAudiences() {
+    try {
+      return jwtValue.getJWTClaimsSet().getAudience().stream().collect(Collectors.toSet());
+    } catch (ParseException e) {
+      return Set.of();
+    }
+  }
 
   public void hashMe() {
     if (jwtValue != null) {

@@ -60,111 +60,115 @@ import com.nimbusds.jwt.JWT;
  *
  */
 public abstract class AbstractClientEntityView extends AbstractView {
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = LoggerFactory.getLogger(AbstractClientEntityView.class);
+  /**
+   * Logger for this class
+   */
+  private static final Logger logger = LoggerFactory.getLogger(AbstractClientEntityView.class);
 
-	private JsonParser parser = new JsonParser();
+  private JsonParser parser = new JsonParser();
 
-	private Gson gson = new GsonBuilder()
-			.setExclusionStrategies(getExclusionStrategy())
-			.registerTypeAdapter(JWSAlgorithm.class, new JsonSerializer<JWSAlgorithm>() {
-				@Override
-				public JsonElement serialize(JWSAlgorithm src, Type typeOfSrc, JsonSerializationContext context) {
-					if (src != null) {
-						return new JsonPrimitive(src.getName());
-					} else {
-						return null;
-					}
-				}
-			})
-			.registerTypeAdapter(JWEAlgorithm.class, new JsonSerializer<JWEAlgorithm>() {
-				@Override
-				public JsonElement serialize(JWEAlgorithm src, Type typeOfSrc, JsonSerializationContext context) {
-					if (src != null) {
-						return new JsonPrimitive(src.getName());
-					} else {
-						return null;
-					}
-				}
-			})
-			.registerTypeAdapter(EncryptionMethod.class, new JsonSerializer<EncryptionMethod>() {
-				@Override
-				public JsonElement serialize(EncryptionMethod src, Type typeOfSrc, JsonSerializationContext context) {
-					if (src != null) {
-						return new JsonPrimitive(src.getName());
-					} else {
-						return null;
-					}
-				}
-			})
-			.registerTypeAdapter(JWKSet.class, new JsonSerializer<JWKSet>() {
-				@Override
-				public JsonElement serialize(JWKSet src, Type typeOfSrc, JsonSerializationContext context) {
-					if (src != null) {
-						return parser.parse(src.toString());
-					} else {
-						return null;
-					}
-				}
-			})
-			.registerTypeAdapter(JWT.class, new JsonSerializer<JWT>() {
-				@Override
-				public JsonElement serialize(JWT src, Type typeOfSrc, JsonSerializationContext context) {
-					if (src != null) {
-						return new JsonPrimitive(src.serialize());
-					} else {
-						return null;
-					}
-				}
+  private Gson gson = new GsonBuilder().setExclusionStrategies(getExclusionStrategy())
+    .registerTypeAdapter(JWSAlgorithm.class, new JsonSerializer<JWSAlgorithm>() {
+      @Override
+      public JsonElement serialize(JWSAlgorithm src, Type typeOfSrc,
+          JsonSerializationContext context) {
+        if (src != null) {
+          return new JsonPrimitive(src.getName());
+        } else {
+          return null;
+        }
+      }
+    })
+    .registerTypeAdapter(JWEAlgorithm.class, new JsonSerializer<JWEAlgorithm>() {
+      @Override
+      public JsonElement serialize(JWEAlgorithm src, Type typeOfSrc,
+          JsonSerializationContext context) {
+        if (src != null) {
+          return new JsonPrimitive(src.getName());
+        } else {
+          return null;
+        }
+      }
+    })
+    .registerTypeAdapter(EncryptionMethod.class, new JsonSerializer<EncryptionMethod>() {
+      @Override
+      public JsonElement serialize(EncryptionMethod src, Type typeOfSrc,
+          JsonSerializationContext context) {
+        if (src != null) {
+          return new JsonPrimitive(src.getName());
+        } else {
+          return null;
+        }
+      }
+    })
+    .registerTypeAdapter(JWKSet.class, new JsonSerializer<JWKSet>() {
+      @Override
+      public JsonElement serialize(JWKSet src, Type typeOfSrc, JsonSerializationContext context) {
+        if (src != null) {
+          return parser.parse(src.toString());
+        } else {
+          return null;
+        }
+      }
+    })
+    .registerTypeAdapter(JWT.class, new JsonSerializer<JWT>() {
+      @Override
+      public JsonElement serialize(JWT src, Type typeOfSrc, JsonSerializationContext context) {
+        if (src != null) {
+          return new JsonPrimitive(src.serialize());
+        } else {
+          return null;
+        }
+      }
 
-			})
-			.registerTypeAdapter(PKCEAlgorithm.class, new JsonSerializer<PKCEAlgorithm>() {
-				@Override
-				public JsonPrimitive serialize(PKCEAlgorithm src, Type typeOfSrc, JsonSerializationContext context) {
-					if (src != null) {
-						return new JsonPrimitive(src.getName());
-					} else {
-						return null;
-					}
-				}
-			})
-			.serializeNulls()
-			.setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-			.create();
-
-
-	/**
-	 * @return
-	 */
-	protected abstract ExclusionStrategy getExclusionStrategy();
+    })
+    .registerTypeAdapter(PKCEAlgorithm.class, new JsonSerializer<PKCEAlgorithm>() {
+      @Override
+      public JsonPrimitive serialize(PKCEAlgorithm src, Type typeOfSrc,
+          JsonSerializationContext context) {
+        if (src != null) {
+          return new JsonPrimitive(src.name());
+        } else {
+          return null;
+        }
+      }
+    })
+    .serializeNulls()
+    .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+    .create();
 
 
-	@Override
-	protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) {
+  /**
+   * @return
+   */
+  protected abstract ExclusionStrategy getExclusionStrategy();
 
-		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+  @Override
+  protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
+      HttpServletResponse response) {
+
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
 
-		HttpStatus code = (HttpStatus) model.get(HttpCodeView.CODE);
-		if (code == null) {
-			code = HttpStatus.OK; // default to 200
-		}
+    HttpStatus code = (HttpStatus) model.get(HttpCodeView.CODE);
+    if (code == null) {
+      code = HttpStatus.OK; // default to 200
+    }
 
-		response.setStatus(code.value());
+    response.setStatus(code.value());
 
-		try {
+    try {
 
-			Writer out = response.getWriter();
-			Object obj = model.get(JsonEntityView.ENTITY);
-			gson.toJson(obj, out);
+      Writer out = response.getWriter();
+      Object obj = model.get(JsonEntityView.ENTITY);
+      gson.toJson(obj, out);
 
-		} catch (IOException e) {
+    } catch (IOException e) {
 
-			logger.error("IOException in JsonEntityView.java: ", e);
+      logger.error("IOException in JsonEntityView.java: ", e);
 
-		}
-	}
+    }
+  }
 
 }

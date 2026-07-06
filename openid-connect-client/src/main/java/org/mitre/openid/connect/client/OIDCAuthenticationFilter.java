@@ -314,10 +314,10 @@ public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFi
       // if we're using PKCE, handle the challenge here
       if (clientConfig.getCodeChallengeMethod() != null) {
         String codeVerifier = createCodeVerifier(session);
-        options.put("code_challenge_method", clientConfig.getCodeChallengeMethod().getName());
+        options.put("code_challenge_method", clientConfig.getCodeChallengeMethod().name());
         if (clientConfig.getCodeChallengeMethod().equals(PKCEAlgorithm.plain)) {
           options.put("code_challenge", codeVerifier);
-        } else if (clientConfig.getCodeChallengeMethod().equals(PKCEAlgorithm.S256)) {
+        } else if (clientConfig.getCodeChallengeMethod().equals(PKCEAlgorithm.s256)) {
           try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             String hash =

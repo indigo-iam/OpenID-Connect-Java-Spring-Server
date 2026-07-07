@@ -41,8 +41,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -74,18 +72,7 @@ import com.nimbusds.jwt.JWT;
  */
 @Entity
 @Table(name = "client_details")
-@NamedQueries({
-    @NamedQuery(name = ClientDetailsEntity.QUERY_ALL,
-        query = "SELECT c FROM ClientDetailsEntity c"),
-    @NamedQuery(name = ClientDetailsEntity.QUERY_BY_CLIENT_ID,
-        query = "select c from ClientDetailsEntity c where c.clientId = :"
-            + ClientDetailsEntity.PARAM_CLIENT_ID)})
 public class ClientDetailsEntity implements ClientDetails {
-
-  public static final String QUERY_BY_CLIENT_ID = "ClientDetailsEntity.getByClientId";
-  public static final String QUERY_ALL = "ClientDetailsEntity.findAll";
-
-  public static final String PARAM_CLIENT_ID = "clientId";
 
   private static final int DEFAULT_ID_TOKEN_VALIDITY_SECONDS = 600;
 
@@ -406,7 +393,7 @@ public class ClientDetailsEntity implements ClientDetails {
    */
   @Basic
   @Override
-  @Column(name = "client_id")
+  @Column(name = "client_id", unique = true)
   public String getClientId() {
     return clientId;
   }

@@ -20,7 +20,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mitre</groupId>
 	<artifactId>openid-connect-parent</artifactId>
-	<version>2.2.1.cnaf-20260707</version>
+	<version>2.2.2.cnaf-20260707</version>
 	<name>MITREid Connect</name>
 	<packaging>pom</packaging>
 	<parent>

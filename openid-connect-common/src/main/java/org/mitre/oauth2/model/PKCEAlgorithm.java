@@ -18,5 +18,5 @@ package org.mitre.oauth2.model;
 
 public enum PKCEAlgorithm {
 
-  optional, none, plain, s256;
+  optional, none, plain, S256;
 }

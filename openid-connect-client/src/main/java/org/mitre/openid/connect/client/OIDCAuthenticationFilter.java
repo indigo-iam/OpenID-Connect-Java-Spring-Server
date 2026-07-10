@@ -317,7 +317,7 @@ public class OIDCAuthenticationFilter extends AbstractAuthenticationProcessingFi
         options.put("code_challenge_method", clientConfig.getCodeChallengeMethod().name());
         if (clientConfig.getCodeChallengeMethod().equals(PKCEAlgorithm.plain)) {
           options.put("code_challenge", codeVerifier);
-        } else if (clientConfig.getCodeChallengeMethod().equals(PKCEAlgorithm.s256)) {
+        } else if (clientConfig.getCodeChallengeMethod().equals(PKCEAlgorithm.S256)) {
           try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             String hash =

@@ -55,7 +55,7 @@ import com.google.gson.JsonParser;
 @PreAuthorize("hasRole('ROLE_USER')")
 public class WhitelistAPI {
 
-	public static final String URL = RootController.API_URL + "/whitelist";
+	public static final String URL = "/api/whitelist";
 
 	@Autowired
 	private WhitelistedSiteService whitelistService;

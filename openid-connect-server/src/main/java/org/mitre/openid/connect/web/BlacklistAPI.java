@@ -55,7 +55,7 @@ import com.google.gson.JsonSyntaxException;
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 public class BlacklistAPI {
 
-	public static final String URL = RootController.API_URL + "/blacklist";
+	public static final String URL = "/api/blacklist";
 
 	@Autowired
 	private BlacklistedSiteService blacklistService;

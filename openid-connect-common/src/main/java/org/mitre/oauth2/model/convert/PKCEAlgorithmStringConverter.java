@@ -31,7 +31,8 @@ public class PKCEAlgorithmStringConverter implements AttributeConverter<PKCEAlgo
 
   @Override
   public PKCEAlgorithm convertToEntityAttribute(String dbData) {
-    return dbData != null ? PKCEAlgorithm.valueOf(dbData) : PKCEAlgorithm.optional;
+    return dbData != null && !dbData.isBlank() ? PKCEAlgorithm.valueOf(dbData)
+        : PKCEAlgorithm.optional;
   }
 
 }
